@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
-import B2CHome from "./components/LandingPage";
+
 
 // Importing Pages
 import Home from "./pages/Home";
@@ -12,10 +12,11 @@ import Careers from "./pages/Careers";
 import Time from "./pages/Time";
 import Ourfounders from "./pages/OurFounders";
 import FAQ from "./pages/FAQ";
+import Order from "./pages/Order"
 
 const App = () => {
   const location = useLocation();
-  const isB2CPage = location.pathname === "/b2c";
+  const isB2CPage = location.pathname === "/order";
 
   return (
     <div>
@@ -29,7 +30,7 @@ const App = () => {
         <Route path="/timeline" element={<Time />} />
         <Route path="/ourfounders" element={<Ourfounders />} />
         <Route path="/faq" element={<FAQ />} />
-        <Route path="/b2c" element={<B2CHome />} />
+        <Route path="/order/*" element={<Order />} />
         {/* Add more routes as needed */}
       </Routes>
 
