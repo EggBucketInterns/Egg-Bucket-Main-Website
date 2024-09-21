@@ -91,7 +91,7 @@ const ContactUs = () => {
                 href="mailto:kacklewallsnutrition@gmail.com"
                 className="text-[#f87709] hover:text-yellow-800 transition-colors"
               >
-                kacklewallsnutrition@gmail.com
+                support@eggbucket.in
               </a>
             </p>
           </div>
