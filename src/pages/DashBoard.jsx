@@ -2,7 +2,7 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Account from "../components/Account";  
-import Orders from "../components/Orders";
+import Orders from "../components/OrderStatus";
 import Profile from "../components/Profile";
 import Addresses from "../components/Address";
 
