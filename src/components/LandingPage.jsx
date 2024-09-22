@@ -68,7 +68,7 @@ const LandingPage = () => {
               <img src={ellipse7} alt="Ellipse 7" className="w-full md:w-3/4 absolute z-10 mt-14 animate-spin-slow" />
               <img src={ellipse8} alt="Ellipse 8" className="w-4/5 md:w-3/5 absolute z-20 mt-14 animate-spin-slow" />
               <img src={pc30} alt="30 pc tray" className="w-3/4 md:w-2/4 absolute z-30 mt-14 transform transition-transform duration-700 hover:scale-110" />
-              <img src={review} alt="Reviews" className="w-1/2 absolute z-40 animate-fade-in transform transition-transform duration-700 hover:scale-110" style={{ bottom: '-10%', left: '-15%' }} />
+              <img src={review} alt="Reviews" className="w-1/2 absolute z-30 animate-fade-in transform transition-transform duration-700 hover:scale-110" style={{ bottom: '-10%', left: '-15%' }} />
             </div>
           </div>
         </div>
