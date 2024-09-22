@@ -62,7 +62,7 @@ function Login() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+91"
-                maxLength="10"
+                pattern="[6789][0-9]{9}"
                 className="flex-1 border p-2 rounded-l-md focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
               <button
@@ -90,7 +90,7 @@ function Login() {
               </div>
 
               <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center">
+{/*                 <div className="flex items-center">
                   <input
                     type="checkbox"
                     checked={rememberMe}
@@ -98,7 +98,7 @@ function Login() {
                     className="mr-2"
                   />
                   <label>Remember Me</label>
-                </div>
+                </div> */}
                 <button
                   type="button"
                   onClick={handleSendOtp}
