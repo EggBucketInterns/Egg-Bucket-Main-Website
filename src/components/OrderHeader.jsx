@@ -57,9 +57,15 @@ const Header = () => {
               size={25}
               className="cursor-pointer text-gray-600 hover:text-orange-500 transition-transform transform hover:scale-110"
             />
-            <button className="bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 transition-transform duration-300 transform hover:scale-105">
+{/*             <button className="bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 transition-transform duration-300 transform hover:scale-105">
               Login
-            </button>
+            </button> */}
+              <Link to="/order/account/orders"> 
+              <AiOutlineUser
+                size={25}
+                className="cursor-pointer text-gray-600 hover:text-orange-500 transition-transform transform hover:scale-110"
+              />
+            </Link>
             {!nav ? (
               <AiOutlineMenu
                 size={25}
@@ -161,9 +167,15 @@ const Header = () => {
             size={25}
             className="cursor-pointer text-gray-800 hover:text-orange-500 transition-transform transform hover:scale-110"
           />
-          <button className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-transform duration-300 transform hover:scale-105">
+{/*           <button className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-transform duration-300 transform hover:scale-105">
             Login
-          </button>
+          </button> */}
+            <Link to="/order/account/orders"> 
+              <AiOutlineUser
+                size={25}
+                className="cursor-pointer text-gray-600 hover:text-orange-500 transition-transform transform hover:scale-110"
+              />
+            </Link>
         </div>
       </div>
 
