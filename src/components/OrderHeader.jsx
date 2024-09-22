@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import {Link} from "react-router-dom"
 import bglogo from "../assets/Images/logo.png";
 import { AiOutlineShoppingCart, AiOutlineMenu, AiOutlineClose, AiOutlineDown, AiOutlinePlus, AiOutlineEnvironment } from "react-icons/ai";
 import Cart from "./Cart"; 
@@ -53,21 +54,11 @@ const Header = () => {
               alt="Logo"
             />
 
-{/*             <button className="bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 transition-transform duration-300 transform hover:scale-105">
-              Login
-            </button> */}
-              <Link to="/order/account/orders"> 
-              <AiOutlineUser
-                size={25}
-                className="cursor-pointer text-gray-600 hover:text-orange-500 transition-transform transform hover:scale-110"
-              />
-            </Link>
-            {!nav ? (
-              <AiOutlineMenu
-                size={25}
-                className="cursor-pointer transition-transform transform hover:scale-110"
-                onClick={handleNav}
-
+            {/* Mobile Menu Button */}
+            <div className="md:hidden flex items-center space-x-4">
+              <AiOutlineEnvironment
+                className="text-gray-600 hover:text-orange-500 text-2xl"
+                onClick={toggleAddressPopup}
               />
 
               <AiOutlineShoppingCart
@@ -76,9 +67,9 @@ const Header = () => {
                 onClick={toggleCart} // Open cart on click
               />
 
-              <button className="bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 transition-transform duration-300 transform hover:scale-105">
+              <Link className="bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 transition-transform duration-300 transform hover:scale-105">
                 Login
-              </button>
+              </Link>
               {!nav ? (
                 <AiOutlineMenu
                   size={25}
@@ -173,23 +164,17 @@ const Header = () => {
             )}
           </div>
 
-
-        {/* Cart, and Login for Desktop */}
-        <div className="hidden md:flex items-center md:space-x-3 lg:space-x-6 mx-3">
-          <AiOutlineShoppingCart
-            size={25}
-            className="cursor-pointer text-gray-800 hover:text-orange-500 transition-transform transform hover:scale-110"
-          />
-{/*           <button className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-transform duration-300 transform hover:scale-105">
-            Login
-          </button> */}
-            <Link to="/order/account/orders"> 
-              <AiOutlineUser
-                size={25}
-                className="cursor-pointer text-gray-600 hover:text-orange-500 transition-transform transform hover:scale-110"
-              />
+          {/* Cart, and Login for Desktop */}
+          <div className="hidden md:flex items-center md:space-x-3 lg:space-x-6 mx-3">
+            <AiOutlineShoppingCart
+              size={25}
+              className="cursor-pointer text-gray-800 hover:text-orange-500 transition-transform transform hover:scale-110"
+              onClick={toggleCart} // Open cart on click
+            />
+            <Link className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-transform duration-300 transform hover:scale-105" to="/order/account/orders">
+              Login
             </Link>
-
+          </div>
         </div>
 
         {/* Mobile Menu */}
