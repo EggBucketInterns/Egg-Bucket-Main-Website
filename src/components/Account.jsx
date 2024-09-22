@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { FaShoppingCart, FaUser, FaMapMarkerAlt, FaSignOutAlt, FaArrowLeft } from 'react-icons/fa';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import profile from "../assets/Images/profile.png";
-import Orders from './Orders';
+import Orders from './OrderStatus';
 import Profile from './Profile';
 import Addresses from './Address';
 
