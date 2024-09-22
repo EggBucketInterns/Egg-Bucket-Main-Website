@@ -34,7 +34,7 @@ const Account = () => {
   };
 
   return (
-    <div className="flex min-h-screen mt-16 lg:mt-40 bg-gray-100">
+    <div className="flex min-h-screen mt-16 lg:mt-20 bg-gray-100">
       {/* Sidebar */}
       <div className={`w-full lg:w-1/4 bg-white p-6 shadow-lg lg:block ${isSidebarVisible ? 'block' : 'hidden'}`}>
         <div className="flex flex-col items-center space-x-4">
