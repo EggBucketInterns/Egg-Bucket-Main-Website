@@ -9,7 +9,7 @@ const Careers = () => {
   }, []);
 
   const handleApplyNowClick = () => {
-    window.location.href = "https://folkflow.com/co/company-1276985785";
+    window.location.href = "https://app.dover.com/jobs/eggbucket";
   };
 
   return (
