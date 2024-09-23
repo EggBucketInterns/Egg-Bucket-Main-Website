@@ -1,113 +1,67 @@
-import React, { useRef, useState } from "react";
-import ccdLogo from "../assets/Images/cafe-coffee-day.svg";
-import goldmanSachsLogo from "../assets/Images/goldman-sachs.png";
-import tipsyBullLogo from "../assets/Images/tipsy-bull.png";
-import glensBakehouseLogo from "../assets/Images/glen-logo.png";
-import sodexoLogo from "../assets/Images/sodexo-logo.png";
-import googleLogo from "../assets/Images/google-logo.png";
-import zomatoLogo from "../assets/Images/zomato-seeklogo.svg";
-import EliorLogo from "../assets/Images/elior-logo.svg";
-import sweetChariotLogo from "../assets/Images/sweet-chariot.png";
+import React from "react";
+import supplyChainImage from "../assets/Images/supply-chain.jpg";
+import qualityImage from "../assets/Images/quality.jpg";
+import pricingImage from "../assets/Images/pricing.jpg";
+import supportImage from "../assets/Images/support.jpg";
+import "aos/dist/aos.css"; // Ensure AOS library is installed
 
-const Partners = () => {
-  const scrollRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-
-  const partners = [
-    { name: "Cafe Coffee Day", logo: ccdLogo },
-    { name: "Goldman Sachs", logo: goldmanSachsLogo },
-    { name: "Tipsy Bull", logo: tipsyBullLogo },
-    { name: "Glen's Bakehouse", logo: glensBakehouseLogo },
-    { name: "Sodexo", logo: sodexoLogo },
-    { name: "Google", logo: googleLogo },
-    { name: "Zomato", logo: zomatoLogo },
-    { name: "Elior", logo: EliorLogo },
-    { name: "Sweet Chariot", logo: sweetChariotLogo },
+const Services = () => {
+  const services = [
+    {
+      title: "Streamlined Egg Supply Chain for Every Need",
+      description: `At Egg Bucket, we simplify the egg supply chain by connecting selected farms directly with businesses and consumers. Our robust system ensures timely deliveries, whether for large-scale B2B needs or personalized B2C orders. By partnering with trusted farms, we guarantee the freshest eggs delivered to you seamlessly and efficiently.`,
+      image: supplyChainImage,
+    },
+    {
+      title: "Uncompromised Quality & Ethical Sourcing",
+      description: `Our commitment to quality is unwavering. Egg Bucket works exclusively with farms that adhere to the highest standards of ethical practices. Every batch of eggs is thoroughly inspected to ensure they meet our stringent quality criteria. We’re dedicated to providing you with fresh, high-quality eggs that are responsibly sourced to support both your business and the environment.`,
+      image: qualityImage,
+    },
+    {
+      title: "Competitive Pricing with Custom Solutions",
+      description: `Egg Bucket offers competitive pricing tailored to meet the diverse needs of our clients. Whether you’re a business requiring bulk orders or a consumer seeking smaller quantities, our flexible pricing and customized solutions are designed to fit your requirements. We collaborate closely with you to provide the best value without compromising on quality.`,
+      image: pricingImage,
+    },
+    {
+      title: "Dedicated Support & Easy Ordering Experience",
+      description: `Our customer support team is always available to assist you, ensuring a smooth and hassle-free experience. Egg Bucket’s intuitive ordering platform makes it easy to manage your egg supply, track deliveries, and address any concerns promptly. Whether you’re a business or an individual customer, we are committed to providing exceptional service and support.`,
+      image: supportImage,
+    },
   ];
 
-  // Handle mouse or touch start
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    scrollRef.current.style.animationPlayState = "paused"; // Pause scrolling on drag
-    setStartX(e.pageX || e.touches[0].pageX - scrollRef.current.offsetLeft);
-    setScrollLeft(scrollRef.current.scrollLeft);
-  };
-
-  // Handle mouse or touch move
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    const x = e.pageX || e.touches[0].pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5;
-    scrollRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  // Handle mouse or touch release
-  const handleMouseUpOrLeave = () => {
-    setIsDragging(false);
-    scrollRef.current.style.animationPlayState = "running"; // Resume scrolling after drag
-  };
-
   return (
-    <section className="bg-white py-12 w-full">
-      <div className="container mx-auto text-center overflow-hidden">
-        <h2 className="text-3xl md:text-4xl font-semibold text-gray-800 mb-8">
-          Our Trusted Partners
+    <section className="bg-[#fff5e6] py-20">
+      <div className="container mx-auto px-6 md:px-12 space-y-16">
+        <h2 className="text-4xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center text-gray-800 mb-16">
+          Why Choose Us?
         </h2>
-
-        <div
-          ref={scrollRef}
-          className="relative flex whitespace-nowrap  cursor-pointer animate-scroll"
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUpOrLeave}
-          onMouseLeave={handleMouseUpOrLeave}
-          onTouchStart={handleMouseDown}
-          onTouchMove={handleMouseMove}
-          onTouchEnd={handleMouseUpOrLeave}
-        >
-          {/* Duplicated logos for seamless scroll */}
-          {partners.concat(partners).map((partner, index) => (
-            <div
-              key={index}
-              className="flex justify-center items-center p-4"
-              style={{ flex: "0 0 auto" }}
-            >
+        {services.map((service, index) => (
+          <div
+            key={index}
+            className={`flex flex-col md:flex-row ${
+              index % 2 === 0 ? "" : "md:flex-row-reverse"
+            } items-center space-y-8 md:space-y-0 md:space-x-6 `}
+            data-aos="fade-up"
+            data-aos-delay={`${index * 100}`}
+          >
+            <div className="md:w-1/2 flex-shrink-0 flex justify-center items-center hover:scale-105 transition-transform duration-300 ease-in-out">
               <img
-                src={partner.logo}
-                alt={partner.name}
-                className="h-12 md:max-h-20 object-contain mr-10 md:mr-20"
-                style={{ width: "auto", maxWidth: "150px" }}
+                src={service.image}
+                alt={service.title}
+                className="w-4/5 h-72 object-cover rounded-lg"
               />
             </div>
-          ))}
-        </div>
+            <div className="md:w-1/2">
+              <h3 className="text-3xl font-semibold text-gray-800 mb-6">
+                {service.title}
+              </h3>
+              <p className="text-lg text-gray-600">{service.description}</p>
+            </div>
+          </div>
+        ))}
       </div>
-
-      {/* Infinite scrolling animation */}
-      <style jsx>{`
-        @keyframes scroll {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-        .animate-scroll {
-          animation: scroll 15s linear infinite;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </section>
   );
 };
 
-export default Partners;
+export default Services;
