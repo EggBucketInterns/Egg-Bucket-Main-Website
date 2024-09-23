@@ -7,7 +7,7 @@ import {
   FaMapMarkerAlt,
   FaEnvelope,
 } from "react-icons/fa";
-import logo from "../assets/Images/logo-egg-png.png";
+import logo from "../assets/images/logo-egg-png.png";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -21,7 +21,7 @@ const Footer = () => {
             <img src={logo} alt="Egg Bucket Logo" className="w-36 mb-2" />
             <p className="mb-2">
               At Egg Bucket, we are dedicated to providing fresh and
-              high-quality eggs straight from our farm to your table.
+              high-quality eggs straight from our farm to your doorstep.
             </p>
             <div className="flex items-center mb-1">
               <FaMapMarkerAlt className="text-[#f87709] mr-2" />
