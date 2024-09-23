@@ -85,7 +85,7 @@ const ContactUs = () => {
                 href="mailto:kacklewallsnutrition@gmail.com"
                 className="text-[#f87709] hover:text-yellow-800 transition-colors"
               >
-                kacklewallsnutrition@gmail.com
+                support@eggbucket.in
               </a>
             </p>
           </div>
@@ -104,7 +104,7 @@ const ContactUs = () => {
             Fill out the form below, and we’ll get back to you shortly.
           </p>
           <form
-            action="https://formspree.io/f/myzgvdkq"
+            action="https://formspree.io/f/xkgwljng"
             method="POST"
             className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
           >
