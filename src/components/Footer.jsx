@@ -7,7 +7,7 @@ import {
   FaMapMarkerAlt,
   FaEnvelope,
 } from "react-icons/fa";
-import logo from "../assets/images/logo-egg-png.png";
+import logo from "../assets/Images/logo-egg-png.png";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
