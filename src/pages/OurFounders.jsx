@@ -7,8 +7,8 @@ import FounderMessage from "../components/FounderMessage";
 const Ourfounders = () => {
   return (
     <div>
-      <FounderInfo />
-      <FounderMessage />
+      {/* <FounderInfo />
+      <FounderMessage /> */}
 
       <Founder />
     </div>
