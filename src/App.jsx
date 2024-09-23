@@ -1,10 +1,13 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
-
-
 
 // Importing Pages
 import Home from "./pages/Home";
@@ -13,14 +16,13 @@ import Careers from "./pages/Careers";
 import Time from "./pages/Time";
 import Ourfounders from "./pages/OurFounders";
 import FAQ from "./pages/FAQ";
-import Order from "./pages/Order"
+import Order from "./pages/Order";
 import { SiDotenv } from "react-icons/si";
 import { GrConfigure } from "react-icons/gr";
 
-
 const App = () => {
   const location = useLocation();
-  const isB2CPage = location.pathname.startsWith("/order")
+  const isB2CPage = location.pathname.startsWith("/order");
 
   return (
     <div>
@@ -49,4 +51,3 @@ const AppWrapper = () => (
 );
 
 export default AppWrapper;
-
