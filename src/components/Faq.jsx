@@ -25,33 +25,33 @@ const FAQSection = () => {
 
   const faqs = [
     {
-      question: "What makes our eggs unique?",
+      question: "What makes Egg Bucket unique?",
       answer:
-        "Our eggs are sourced from local, free-range farms committed to sustainable and ethical practices.",
+        "Egg Bucket sources eggs from local, free-range farms committed to sustainable and ethical practices.",
     },
     {
-      question: "How do we ensure the safety and quality of our eggs?",
+      question: "How do we ensure the safety and quality of Egg Bucket eggs?",
       answer:
         "We adhere to strict quality control standards at every stage of production, from farm to packaging. Our facilities undergo regular inspections and testing to maintain compliance with food safety regulations.",
     },
     {
-      question: "Where can I purchase our eggs?",
+      question: "Where can I purchase Egg Bucket eggs?",
       answer:
-        "Our eggs are available at select grocery stores, farmers' markets, and online platforms. Please refer to our website or contact our customer service team for a list of authorized distributors.",
+        "Egg Bucket eggs are available at select grocery stores, farmers' markets, and online platforms. Please refer to our website or contact our customer service team for a list of authorized distributors.",
     },
     {
-      question: "Can I recycle the egg cartons?",
+      question: "Can I recycle the Egg Bucket egg cartons?",
       answer:
-        "Yes, our egg cartons are made from recyclable materials. We encourage customers to recycle or reuse them whenever possible to minimize waste and promote environmental sustainability.",
+        "Yes, Egg Bucket egg cartons are made from recyclable materials. We encourage customers to recycle or reuse them whenever possible to minimize waste and promote environmental sustainability.",
     },
     {
       question: "How can I contact customer support for inquiries or feedback?",
       answer:
-        "For any questions, concerns, or feedback, please reach out to our customer support team via email at kacklewallsnutrition@gmail.com or visit contact us page. We are committed to providing prompt and personalized assistance to ensure your satisfaction.",
+        "For any questions, concerns, or feedback, please reach out to our customer support team via email at kacklewallsnutrition@gmail.com or visit our contact page. We are committed to providing prompt and personalized assistance to ensure your satisfaction.",
     },
     {
       question:
-        "Are there opportunities for partnerships or collaborations with our company?",
+        "Are there opportunities for partnerships or collaborations with Egg Bucket?",
       answer:
         "We welcome opportunities for partnerships, collaborations, and wholesale inquiries. Please contact our business development team to discuss potential opportunities for mutual growth and success.",
     },
