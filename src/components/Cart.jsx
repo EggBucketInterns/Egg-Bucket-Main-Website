@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
+import pc30 from '../assets/Images/30pc.svg';
+import pc12 from '../assets/Images/12pc.svg';
+import pc6 from '../assets/Images/6pc.svg';
 
 const Cart = ({ isCartOpen, toggleCart }) => {
   const initialProducts = [
-    { id: 1, name: '6 Pcs Egg Tray', price: 100, quantity: 1, img: 'https://via.placeholder.com/50' },
-    { id: 2, name: '12 Pcs Egg Tray', price: 200, quantity: 1, img: 'https://via.placeholder.com/50' },
-    { id: 3, name: '30 Pcs Egg Tray', price: 300, quantity: 1, img: 'https://via.placeholder.com/50' },
-    { id: 4, name: '6 Pcs Egg Tray', price: 100, quantity: 1, img: 'https://via.placeholder.com/50' },
+    { id: 1, name: '6 Pcs Egg Tray', price: 100, quantity: 1, img: pc6 },
+    { id: 2, name: '12 Pcs Egg Tray', price: 200, quantity: 1, img: pc12 },
+    { id: 3, name: '30 Pcs Egg Tray', price: 300, quantity: 1, img: pc30 },
+   
   ];
 
   const [products, setProducts] = useState(initialProducts);
