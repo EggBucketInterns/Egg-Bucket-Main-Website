@@ -27,7 +27,7 @@ const Partners = () => {
     { name: "Sweet Chariot", logo: sweetChariotLogo },
   ];
 
-  // Handle mouse or touch start
+
   const handleMouseDown = (e) => {
     setIsDragging(true);
     scrollRef.current.style.animationPlayState = "paused"; // Pause scrolling on drag
@@ -35,7 +35,7 @@ const Partners = () => {
     setScrollLeft(scrollRef.current.scrollLeft);
   };
 
-  // Handle mouse or touch move
+
   const handleMouseMove = (e) => {
     if (!isDragging) return;
     const x = e.pageX || e.touches[0].pageX - scrollRef.current.offsetLeft;
@@ -43,7 +43,7 @@ const Partners = () => {
     scrollRef.current.scrollLeft = scrollLeft - walk;
   };
 
-  // Handle mouse or touch release
+
   const handleMouseUpOrLeave = () => {
     setIsDragging(false);
     scrollRef.current.style.animationPlayState = "running"; // Resume scrolling after drag
@@ -67,7 +67,7 @@ const Partners = () => {
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUpOrLeave}
         >
-          {/* Duplicated logos for seamless scroll */}
+         
           {partners.concat(partners).map((partner, index) => (
             <div
               key={index}
@@ -85,7 +85,7 @@ const Partners = () => {
         </div>
       </div>
 
-      {/* Infinite scrolling animation */}
+    
       <style jsx>{`
         @keyframes scroll {
           0% {
