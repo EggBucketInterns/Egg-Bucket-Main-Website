@@ -1,4 +1,5 @@
 import React from "react";
+import {Link} from "react-router-dom"
 
 const Footer = () => {
   return (
@@ -50,7 +51,7 @@ const Footer = () => {
               </p>
               <p className="mb-2 font-semibold">connect with us at</p>
               <div className="flex flex-col text-left md:flex-row  md:justify-start  space-y-3 md:space-y-0 md:space-x-4">
-{/*                 <p className="flex md:items-center font-semibold">
+                {/* <p className="flex md:items-center font-semibold">
                   <img
                     src="/src/assets/Images/support.png"
                     className="h-6 w-6 mr-3"
@@ -123,16 +124,6 @@ const Footer = () => {
                       Privacy
                     </a>
                   </li>
-                  <li>
-                    <a href="/company" className="hover:text-gray-400">
-                      Company
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/about" className="hover:text-gray-400">
-                      About us
-                    </a>
-                  </li>
                 </ul>
               </div>
 
@@ -141,12 +132,17 @@ const Footer = () => {
                 <h4 className="font-semibold mb-4">Important Links</h4>
                 <ul className="space-y-2">
                   <li>
-                    <a href="/help" className="hover:text-gray-400">
+                    <Link to="/" className="hover:text-gray-400">
+                      Home
+                    </Link>
+                  </li>
+                  <li>
+                    <a href="/contact-us" className="hover:text-gray-400">
                       Get help
                     </a>
                   </li>
                   <li>
-                    <a href="/know-more" className="hover:text-gray-400">
+                    <a href="/timeline" className="hover:text-gray-400">
                       Know more
                     </a>
                   </li>
