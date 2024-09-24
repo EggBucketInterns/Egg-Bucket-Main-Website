@@ -105,13 +105,13 @@ const Header = () => {
           {/* Desktop Menu */}
           <ul className="hidden md:flex lg:space-x-8 md:space-x-4 text-gray-800 left-[150px] absolute">
             <li className="relative lg:text-lg md:text-base hover:text-orange-500 cursor-pointer transition-transform transform hover:scale-105 group">
-              <span>About Us</span>
+              <Link to="/">Home</Link>
               <span className="absolute bottom-0 left-0 w-0 h-1 bg-orange-500 transition-all duration-1000 group-hover:w-full"></span>
             </li>
-            <li className="relative lg:text-lg md:text-base hover:text-orange-500 cursor-pointer transition-transform transform hover:scale-105 group">
+            {/* <li className="relative lg:text-lg md:text-base hover:text-orange-500 cursor-pointer transition-transform transform hover:scale-105 group">
               <span>Subscribe</span>
               <span className="absolute bottom-0 left-0 w-0 h-1 bg-orange-500 transition-all duration-1000 group-hover:w-full"></span>
-            </li>
+            </li> */}
           </ul>
 
           {/* Address Display Component */}
@@ -206,11 +206,11 @@ const Header = () => {
           <div className="p-8 bg-orange-500 rounded-lg">
             <ul className="text-white space-y-6 text-lg">
               <li className="hover:text-gray-300 transition-colors duration-300 cursor-pointer">
-                About Us
+                <Link to="/">Home</Link>
               </li>
-              <li className="hover:text-gray-300 transition-colors duration-300 cursor-pointer">
+              {/* <li className="hover:text-gray-300 transition-colors duration-300 cursor-pointer">
                 Subscribe
-              </li>
+              </li> */}
               <li className="hover:text-gray-300 transition-colors duration-300 cursor-pointer">
                 Terms and Conditions
               </li>
