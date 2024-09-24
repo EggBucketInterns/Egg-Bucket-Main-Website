@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { auth } from "../firebaseconfig";
+import { auth } from "../firebase.config";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import EggBucketImage from '../assets/Images/EggBucket.png';
 import logo from '../assets/Images/logo.png';
+import { Navigate,useNavigate } from "react-router-dom";
+
 
 function Login() {
   const [phone, setPhone] = useState("");
@@ -10,6 +12,8 @@ function Login() {
   const [otpSent, setOtpSent] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState(null);
   const [message, setMessage] = useState("");
+
+  const navigate = useNavigate();
 
   const onCaptchVerify = () => {
     return new Promise((resolve, reject) => {
@@ -56,12 +60,30 @@ function Login() {
       });
   };
 
+  const setIdToken = async () => {
+    const currentUser = auth.currentUser;
+ 
+    if (currentUser) {
+      try {
+        const token = await currentUser.getIdToken(false); 
+        localStorage.setItem("token", token); 
+        navigate("/order/account")
+      } catch (error) {
+        console.error("Error fetching ID token:", error);
+      }
+    } else {
+      console.error("Couldn't verify user");
+    }
+  };
+  
+
   const verifyOtp = () => {
     if (confirmationResult) {
       confirmationResult.confirm(otp)
         .then((res) => {
           console.log(res);
           setMessage(`Phone verified! Welcome ${res.user.phoneNumber}`);
+          setIdToken();
         })
         .catch((err) => {
           console.error(err);

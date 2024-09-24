@@ -27,13 +27,16 @@ const productsData = [
 const LandingPage = () => {
   const [quantities, setQuantities] = useState(productsData.map(() => 1));
 
+
   const handleIncrement = (index) => {
+    fn()
     const newQuantities = [...quantities];
     newQuantities[index] += 1;
     setQuantities(newQuantities);
   };
 
   const handleDecrement = (index) => {
+   
     const newQuantities = [...quantities];
     if (newQuantities[index] > 1) {
       newQuantities[index] -= 1;

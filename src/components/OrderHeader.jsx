@@ -1,14 +1,22 @@
 import React, { useState } from "react";
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom";
 import bglogo from "../assets/Images/logo.png";
-import { AiOutlineShoppingCart, AiOutlineMenu, AiOutlineClose, AiOutlineDown, AiOutlinePlus, AiOutlineEnvironment } from "react-icons/ai";
-import Cart from "./Cart"; 
+import {
+  AiOutlineShoppingCart,
+  AiOutlineMenu,
+  AiOutlineClose,
+  AiOutlineDown,
+  AiOutlinePlus,
+  AiOutlineEnvironment,
+  AiOutlineUser, // Importing profile icon
+} from "react-icons/ai";
+import Cart from "./Cart";
 
 const Header = () => {
   const [nav, setNav] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false); // State to control cart visibility
   const [showAddressPopup, setShowAddressPopup] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState("Patli Gali, Mota Bazzar, Jammu");
+  const [selectedAddress, setSelectedAddress] = useState("No Address selected");
   const [temporaryAddress, setTemporaryAddress] = useState(null);
 
   const handleNav = () => {
@@ -16,7 +24,7 @@ const Header = () => {
   };
 
   const toggleCart = () => {
-    setIsCartOpen(!isCartOpen); // Toggle the cart visibility
+    setIsCartOpen(!isCartOpen);
   };
 
   const toggleAddressPopup = () => {
@@ -36,15 +44,19 @@ const Header = () => {
 
   return (
     <>
-      {/*background blur when cart is open! */}
+      {/* Background blur when cart is open */}
       {isCartOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-40"
-          onClick={toggleCart} // Close the cart when clicking outside the cart
+          onClick={toggleCart} // Close the cart when clicking outside
         ></div>
       )}
 
-      <nav className={`w-full bg-white shadow-md fixed top-0 z-50 transition-all duration-300 ease-in-out ${isCartOpen ? 'blur-sm' : ''}`}>
+      <nav
+        className={`w-full bg-white shadow-md fixed top-0 z-50 transition-all duration-300 ease-in-out ${
+          isCartOpen ? "blur-sm" : ""
+        }`}
+      >
         <div className="flex flex-col md:flex-row justify-between items-center px-4 py-3 md:px-8">
           <div className="flex items-center justify-between w-full md:w-auto">
             {/* Logo */}
@@ -67,9 +79,13 @@ const Header = () => {
                 onClick={toggleCart} // Open cart on click
               />
 
-              <Link className="bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 transition-transform duration-300 transform hover:scale-105">
-                Login
+              <Link
+                className="text-gray-600 hover:text-orange-500 text-2xl"
+                to="/order/account/orders"
+              >
+                <AiOutlineUser /> {/* Profile icon */}
               </Link>
+
               {!nav ? (
                 <AiOutlineMenu
                   size={25}
@@ -89,18 +105,17 @@ const Header = () => {
           {/* Desktop Menu */}
           <ul className="hidden md:flex lg:space-x-8 md:space-x-4 text-gray-800 left-[150px] absolute">
             <li className="relative lg:text-lg md:text-base hover:text-orange-500 cursor-pointer transition-transform transform hover:scale-105 group">
-              <span>About Us</span>
+              <Link to="/">Home</Link>
               <span className="absolute bottom-0 left-0 w-0 h-1 bg-orange-500 transition-all duration-1000 group-hover:w-full"></span>
             </li>
-            <li className="relative lg:text-lg md:text-base hover:text-orange-500 cursor-pointer transition-transform transform hover:scale-105 group">
+            {/* <li className="relative lg:text-lg md:text-base hover:text-orange-500 cursor-pointer transition-transform transform hover:scale-105 group">
               <span>Subscribe</span>
               <span className="absolute bottom-0 left-0 w-0 h-1 bg-orange-500 transition-all duration-1000 group-hover:w-full"></span>
-            </li>
+            </li> */}
           </ul>
 
           {/* Address Display Component */}
-          <div className="absolute lg:right-[200px] md:right-[170px]">
-            {/* Desktop Address Popup */}
+          <div className="absolute lg:right-[150px] md:right-[120px]">
             <div
               className="hidden md:flex items-center space-x-2 cursor-pointer"
               onClick={toggleAddressPopup}
@@ -131,7 +146,8 @@ const Header = () => {
                           : "bg-gray-200 text-gray-800 hover:border-orange-400 hover:border-2"
                       }`}
                       style={{
-                        backgroundColor: temporaryAddress === address ? "white" : "",
+                        backgroundColor:
+                          temporaryAddress === address ? "white" : "",
                       }}
                     >
                       {address}
@@ -164,15 +180,19 @@ const Header = () => {
             )}
           </div>
 
-          {/* Cart, and Login for Desktop */}
+          {/* Cart, and Profile Icon for Desktop */}
           <div className="hidden md:flex items-center md:space-x-3 lg:space-x-6 mx-3">
             <AiOutlineShoppingCart
               size={25}
               className="cursor-pointer text-gray-800 hover:text-orange-500 transition-transform transform hover:scale-110"
               onClick={toggleCart} // Open cart on click
             />
-            <Link className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-transform duration-300 transform hover:scale-105" to="/order/account/orders">
-              Login
+            <Link
+              className="text-gray-800 hover:text-orange-500 text-2xl"
+              to="/order/account/orders"
+            >
+              <AiOutlineUser className="cursor-pointer text-gray-800 hover:text-orange-500 transition-transform transform hover:scale-110" />{" "}
+              {/* Profile icon */}
             </Link>
           </div>
         </div>
@@ -186,11 +206,11 @@ const Header = () => {
           <div className="p-8 bg-orange-500 rounded-lg">
             <ul className="text-white space-y-6 text-lg">
               <li className="hover:text-gray-300 transition-colors duration-300 cursor-pointer">
-                About Us
+                <Link to="/">Home</Link>
               </li>
-              <li className="hover:text-gray-300 transition-colors duration-300 cursor-pointer">
+              {/* <li className="hover:text-gray-300 transition-colors duration-300 cursor-pointer">
                 Subscribe
-              </li>
+              </li> */}
               <li className="hover:text-gray-300 transition-colors duration-300 cursor-pointer">
                 Terms and Conditions
               </li>
@@ -206,4 +226,3 @@ const Header = () => {
 };
 
 export default Header;
-
