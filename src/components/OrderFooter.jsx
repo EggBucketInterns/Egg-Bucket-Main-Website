@@ -50,14 +50,14 @@ const Footer = () => {
               </p>
               <p className="mb-2 font-semibold">connect with us at</p>
               <div className="flex flex-col text-left md:flex-row  md:justify-start  space-y-3 md:space-y-0 md:space-x-4">
-                <p className="flex md:items-center font-semibold">
+{/*                 <p className="flex md:items-center font-semibold">
                   <img
                     src="/src/assets/Images/support.png"
                     className="h-6 w-6 mr-3"
                     alt="Support Icon"
                   />{" "}
                   +91 9999999999
-                </p>
+                </p> */}
                 <p className="flex items-center font-semibold">
                   <img
                     src="/src/assets/Images/email support.png"
