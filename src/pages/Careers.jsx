@@ -195,7 +195,7 @@ const Careers = () => {
         </button> */}
         
          <Link to='/careers/dreamjob'
-           className="mt-10 md:mt-10 px-4 md:px-6 py-2 md:py-3 bg-white text-[#f87709] font-semibold rounded-md hover:bg-gray-200 transition-all"
+           className="mt-22 md:mt-10 px-4 md:px-6 py-2 md:py-3 bg-white text-[#f87709] font-semibold rounded-md hover:bg-gray-200 transition-all"
 
         > Apply Now</Link>
       </section>
