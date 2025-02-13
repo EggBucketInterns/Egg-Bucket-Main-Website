@@ -185,14 +185,18 @@ const Careers = () => {
           Ready to make an impact? Join our team of passionate individuals who
           are redefining the future of food services.
         </p>
-        <button
+{/*         <button
           onClick={handleApplyNowClick}
           className="mt-6 md:mt-8 px-4 md:px-6 py-2 md:py-3 bg-white text-[#f87709] font-semibold rounded-md hover:bg-gray-200 transition-all"
           data-aos="fade-up"
           data-aos-delay="300"
         >
           Apply Now
-        </button>
+        </button> */}
+         <Link to='/careers/dreamjob'
+           className="mt-10 md:mt-10 px-4 md:px-6 py-2 md:py-3 bg-white text-[#f87709] font-semibold rounded-md hover:bg-gray-200 transition-all"
+
+        > Apply Now</Link>
       </section>
 
       {/* Contact Us Section */}
