@@ -170,7 +170,7 @@ const Careers = () => {
       </section>
 
       {/* Apply for Job Section */}
-      <section className="py-12 md:py-16 bg-[#f87709] text-center text-white">
+ <section className="py-12 md:py-16 bg-[#f87709] text-center text-white">
         <h2
           className="text-3xl md:text-4xl lg:text-5xl font-bold"
           data-aos="fade-up"
@@ -178,14 +178,14 @@ const Careers = () => {
           Apply for Your Dream Job
         </h2>
         <p
-          className="text-sm md:text-base lg:text-lg mt-4 max-w-3xl mx-auto"
+          className="text-sm md:text-base lg:text-lg mt-4 max-w-3xl mx-auto "
           data-aos="fade-up"
           data-aos-delay="200"
         >
           Ready to make an impact? Join our team of passionate individuals who
           are redefining the future of food services.
         </p>
-{/*         <button
+        {/* <button
           onClick={handleApplyNowClick}
           className="mt-6 md:mt-8 px-4 md:px-6 py-2 md:py-3 bg-white text-[#f87709] font-semibold rounded-md hover:bg-gray-200 transition-all"
           data-aos="fade-up"
@@ -193,12 +193,16 @@ const Careers = () => {
         >
           Apply Now
         </button> */}
-        
-         <Link to='/careers/dreamjob'
-           className="mt-22 md:mt-10 px-4 md:px-6 py-2 md:py-3 bg-white text-[#f87709] font-semibold rounded-md hover:bg-gray-200 transition-all"
-
-        > Apply Now</Link>
+         <Link
+            to="/careers/dreamjob"
+            className="mt-6 md:mt-8 inline-block px-6 py-3 bg-white text-[#f87709] font-semibold rounded-md hover:bg-gray-200 hover:scale-105 transition-all duration-300 ease-in-out"
+            data-aos="fade-up"
+            data-aos-delay="300"
+          >
+            Apply Now
+          </Link>
       </section>
+
 
       {/* Contact Us Section */}
       <section className="py-12 md:py-16 bg-white text-center">
