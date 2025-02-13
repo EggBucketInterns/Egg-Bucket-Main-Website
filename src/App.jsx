@@ -20,6 +20,8 @@ import { fetchUserData } from "./redux/userSlice";
 import { auth } from "./firebase.config";
 import { onAuthStateChanged } from "firebase/auth";
 import Login from "./components/Login";
+import CareerDreamJob from "./pages/CareerDreamJob";
+
 
 const App = () => {
   const location = useLocation();
@@ -49,6 +51,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/contact-us" element={<ContactUsPage />} />
         <Route path="/careers" element={<Careers />} />
+        <Route path="/careers/dreamjob" element={<CareerDreamJob />} />
         <Route path="/timeline" element={<Time />} />
         <Route path="/ourfounders" element={<Ourfounders />} />
         <Route path="/faq" element={<FAQ />} />
