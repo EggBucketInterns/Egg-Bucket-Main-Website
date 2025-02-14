@@ -106,7 +106,7 @@ const Timeline = () => {
             contents: "Egg Bucket makes its first sale of fresh eggs.",
           },
           {
-            year: "June 2023",
+            year: "June 2022",
             goal: "Market Research Completion",
             contents:
               "Egg Bucket completes initial market research and finalizes its business plan.",

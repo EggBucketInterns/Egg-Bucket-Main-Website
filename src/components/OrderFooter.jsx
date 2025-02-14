@@ -67,7 +67,7 @@ const Footer = () => {
                 </p> */}
                 <p className="flex items-center font-semibold">
                   <img
-                    src="/src/assets/Images/email support.png"
+                    src="/src/assets/Images/emailsupport.png"
                     className="h-6 w-6 mr-3"
                     alt="Email Icon"
                   />{" "}
