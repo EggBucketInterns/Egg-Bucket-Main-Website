@@ -185,6 +185,7 @@ const Careers = () => {
           Ready to make an impact? Join our team of passionate individuals who
           are redefining the future of food services.
         </p>
+        
         {/* <button
           onClick={handleApplyNowClick}
           className="mt-6 md:mt-8 px-4 md:px-6 py-2 md:py-3 bg-white text-[#f87709] font-semibold rounded-md hover:bg-gray-200 transition-all"
