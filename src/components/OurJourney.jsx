@@ -153,13 +153,13 @@ const Timeline = () => {
               "Implements quality control measures to ensure the highest product standards.",
           },
           {
-            year: "March 2023",
+            year: "March 2024",
             goal: "Annual Returns Filing",
             contents:
               "Kacklewalls Nutrition Private Limited files its provisional Annual Returns and Financial Statements.",
           },
           {
-            year: "March 2023 - Present",
+            year: "March 2024 - Present",
             goal: "Continued Expansion",
             contents:
               "Egg Bucket is committed to capturing more cities and delivering top-quality products to its customers across the region.",
