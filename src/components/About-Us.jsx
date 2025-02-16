@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, useAnimation, useInView } from "framer-motion";
 import { useScroll, useTransform } from "framer-motion";
 import aboutImage from "../assets/Images/pngwing.com.png";
@@ -8,6 +8,7 @@ const AboutUs = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
   const { scrollY } = useScroll();
+  const[toggle,settoggle] = useState(false);
 
   useEffect(() => {
     if (inView) {
