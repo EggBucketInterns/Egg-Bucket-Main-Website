@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaTimes, FaBars, FaChevronDown } from "react-icons/fa";
 import { MdShoppingCart } from "react-icons/md"; // Importing a shopping cart icon
 import logo from "../assets/Images/logo-egg-png.png";
@@ -8,6 +8,24 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false); // State for About Us submenu
+  const menuRef = useRef(null);
+const aboutRef = useRef(null);
+
+  const handleClickOutside = (event) => {
+    if (menuRef.current && !menuRef.current.contains(event.target)) {
+      setIsOpen(false);
+    }
+    if (aboutRef.current && !aboutRef.current.contains(event.target)) {
+      setAboutOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -70,7 +88,7 @@ const Navbar = () => {
             </li>
 
             {/* About Us with Submenu for Desktop */}
-            <li className="relative">
+            <li className="relative" ref={aboutRef}>
               <button
                 onClick={toggleAboutMenu}
                 className="relative px-3 py-2 text-gray-600 group flex items-center"
