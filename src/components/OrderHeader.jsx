@@ -243,17 +243,19 @@ const Header = ({ addToCart, removeFromCart }) => {
           </div>
 
           <div className="hidden md:flex items-center md:space-x-3 lg:space-x-6 mx-3">
-            <div className="relative">
+            <div className="relative" onClick={toggleCart}>
+
               <AiOutlineShoppingCart
                 size={25}
                 className="cursor-pointer text-gray-800 hover:text-orange-500 transition-transform transform hover:scale-110"
                 onClick={toggleCart}
               />
               {cartItems.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span onClick={toggleCart} className="absolute -top-2 -right-2 hover:scale-105 cursor-pointer bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {cartItems.reduce((total, item) => total + item.quantity, 0)}
                 </span>
               )}
+
             </div>
             <Link
               className="text-gray-800 hover:text-orange-500 text-2xl"
