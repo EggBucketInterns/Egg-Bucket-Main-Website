@@ -8,6 +8,7 @@ import ellipse8 from "../assets/Images/Ellipse 8 carousel_bg.svg";
 import bg from "../assets/Images/hero-section-carousel-bg.svg";
 import { useSelector, useDispatch } from "react-redux";
 import { addItem, removeItem, decrementItem } from "../redux/localStorageSlice";
+import { fetchProducts } from "../redux/productsSlice";
 
 const imageMapping = {
   "6pc_tray": pc6,
@@ -18,9 +19,39 @@ const imageMapping = {
 const LandingPage = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.localStorage.items);
+  const reduxProducts = useSelector((state) => state.products.products);
+  const loading = useSelector((state) => state.products.loading);
+  const error = useSelector((state) => state.products.error);
 
   const [popupVisible, setPopupVisible] = useState(false);
   const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (reduxProducts) {
+      const mappedProducts = reduxProducts.map((product) => ({
+        id: product.id,
+        name: product.name,
+        price: parseFloat(product.price),
+        discount: product.discount,
+        originalPrice: parseFloat(product.currentPrice),
+        image: imageMapping[product.name] || pc6,
+        countInStock: product.countInStock || 0,
+      }));
+      setProducts(mappedProducts);
+    }
+  }, [reduxProducts]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.body.style.overflow = 'auto';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
 
   const handleIncrement = (product) => {
     dispatch(addItem(product));
@@ -58,155 +89,172 @@ const LandingPage = () => {
     return item ? item.quantity : 0;
   };
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch(
-          "https://b2c-backend-1.onrender.com/api/v1/admin/getallproducts"
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const fetchedProducts = await response.json();
-        const mappedProducts = fetchedProducts.map((product) => ({
-          id: product.id,
-          name: product.name,
-          price: parseFloat(product.price),
-          discount: product.discount,
-          originalPrice: parseFloat(product.currentPrice),
-          image: imageMapping[product.name] || pc6, // Default to pc6 if no match
-          countInStock: product.countInStock || 0, // Ensure countInStock is included
-        }));
-        setProducts(mappedProducts);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     try {
+  //       const response = await fetch(
+  //         "https://b2c-backend-1.onrender.com/api/v1/admin/getallproducts"
+  //       );
+  //       if (!response.ok) {
+  //         throw new Error(`HTTP error! status: ${response.status}`);
+  //       }
+  //       const fetchedProducts = await response.json();
+  //       const mappedProducts = fetchedProducts.map((product) => ({
+  //         id: product.id,
+  //         name: product.name,
+  //         price: parseFloat(product.price),
+  //         discount: product.discount,
+  //         originalPrice: parseFloat(product.currentPrice),
+  //         image: imageMapping[product.name] || pc6, // Default to pc6 if no match
+  //         countInStock: product.countInStock || 0, // Ensure countInStock is included
+  //       }));
+  //       setProducts(mappedProducts);
+  //     } catch (error) {
+  //       console.error("Error fetching products:", error);
+  //     }
+  //   };
 
-    fetchProducts();
-  }, []);
+  //   fetchProducts();
+  // }, []);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        Error: {error}
+      </div>
+    );
+  }
   return (
-    <div className="bg-white min-h-screen font-poppins mt-12 relative">
-      {popupVisible && (
-        <div className="fixed top-4 right-4 bg-orange-500 text-white px-4 py-2 rounded-md shadow-md z-50 transition-opacity duration-500">
-          Product added to cart!
-        </div>
-      )}
+    <div className="bg-white min-h-screen font-poppins relative">
+    {popupVisible && (
+      <div className="fixed top-4 right-4 bg-orange-500 text-white px-4 py-2 rounded-md shadow-md z-50 transition-opacity duration-500">
+        Product added to cart!
+      </div>
+    )}
 
-      <main className="container mx-auto px-4 py-8">
-        <div
-          className="mb-12 relative bg-cover bg-no-repeat bg-center"
-          style={{ backgroundImage: `url(${bg})` }}
-        >
-          <div className="flex flex-col-reverse md:flex-row justify-between items-center">
-            <div className="md:w-1/2 text-center md:text-left">
-              <p className="text-lg font-semibold text-orange-600">
-                Egg Bucket Collection
-              </p>
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                Farm Fresh Eggs
-                <br /> Directly To Your <br />
-                Table
-              </h2>
-              <p className="mt-4 text-black font-semibold">
-                Subscribe Now For Daily And Weekly Delivery
-              </p>
-            </div>
+    <main className="container mx-auto px-4 py-4 sm:py-8">
+      <div
+        className="mb-8 sm:mb-12 relative bg-cover bg-no-repeat bg-center rounded-lg overflow-hidden"
+        style={{ backgroundImage: `url(${bg})` }}
+      >
+        <div className="flex flex-col-reverse md:flex-row justify-between items-center p-4 sm:p-6">
+          <div className="w-full md:w-1/2 text-center md:text-left mt-6 md:mt-0">
+            <p className="text-base sm:text-lg font-semibold text-orange-600">
+              Egg Bucket Collection
+            </p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
+              Farm Fresh Eggs
+              <br /> Directly To Your <br />
+              Table
+            </h2>
+            <p className="mt-3 sm:mt-4 text-black font-semibold text-sm sm:text-base">
+              Subscribe Now For Daily And Weekly Delivery
+            </p>
+          </div>
 
-            <div className="w-1/2 flex justify-center items-center relative h-72 md:h-96">
-              <img
-                src={ellipse7}
-                alt="Ellipse 7"
-                className="w-full md:w-3/4 absolute z-10 mt-14 animate-spin-slow"
-              />
-              <img
-                src={ellipse8}
-                alt="Ellipse 8"
-                className="w-4/5 md:w-3/5 absolute z-20 mt-14 animate-spin-slow"
-              />
-              <img
-                src={pc30}
-                alt="30 pc tray"
-                className="w-3/4 md:w-2/4 absolute z-30 mt-14"
-              />
-            </div>
+          <div className="w-full sm:w-1/2 flex justify-center items-center relative h-48 sm:h-72 md:h-96">
+            <img
+              src={ellipse7}
+              alt="Ellipse 7"
+              className="w-full sm:w-3/4 absolute z-10 mt-8 sm:mt-14 animate-spin-slow"
+            />
+            <img
+              src={ellipse8}
+              alt="Ellipse 8"
+              className="w-4/5 sm:w-3/5 absolute z-20 mt-8 sm:mt-14 animate-spin-slow"
+            />
+            <img
+              src={pc30}
+              alt="30 pc tray"
+              className="w-3/4 sm:w-2/4 absolute z-30 mt-8 sm:mt-14"
+            />
           </div>
         </div>
+      </div>
 
-        <h3 className="text-3xl font-bold mb-8 text-center md:text-left">
-          Our Products
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white rounded-3xl shadow-lg overflow-hidden border border-black transition-transform duration-300 hover:scale-105"
-            >
-              <div className="flex flex-col md:flex-row p-6">
+      <h3 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center md:text-left">
+        Our Products
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+        {products.map((product) => (
+          <div
+            key={product.id}
+            className="bg-white rounded-2xl sm:rounded-3xl shadow-lg overflow-hidden border border-black transition-transform duration-300 hover:scale-105"
+          >
+            <div className="flex flex-col p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-center">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full md:w-1/2 h-36 object-contain mb-4"
+                  className="w-full sm:w-1/2 h-28 sm:h-36 object-contain mb-4 sm:mb-0"
                 />
-                <div className="w-full md:w-1/2 pl-4">
-                  <span className="text-2xl font-bold text-blue-900 mt-4 block">
+                <div className="w-full sm:w-1/2 sm:pl-4 text-center sm:text-left">
+                  <span className="text-xl sm:text-2xl font-bold text-blue-900 block">
                     ₹ {product.price.toFixed(2)}
                   </span>
-                  <span className="text-md text-gray-500 line-through mt-2 block">
+                  <span className="text-sm sm:text-md text-gray-500 line-through block mt-1 sm:mt-2">
                     ₹ {product.originalPrice.toFixed(2)}
                   </span>
-                  <span className="text-sm text-green-600 mt-1">
-                    {product.discount}% OFF`
+                  <span className="text-xs sm:text-sm text-green-600 mt-1">
+                    {product.discount}% OFF
                   </span>
                 </div>
               </div>
-              <div className="flex flex-col bg-gradient-to-r from-yellow-300 to-orange-300 p-4 rounded-2xl">
-                <h4 className="text-lg font-bold text-center">
-                  {product.name}
-                </h4>
-                {product.countInStock === 0 ? (
-                  <button
-                    className="bg-gray-400 text-white px-4 py-2 rounded-md mt-4 w-full cursor-not-allowed"
-                    disabled
-                  >
-                    Out of Stock
-                  </button>
-                ) : getProductQuantity(product.id) > 0 ? (
-                  <div className="flex items-center justify-between mt-4">
-                    <button
-                      className="bg-gray-200 p-2 rounded-md"
-                      onClick={() => handleDecrement(product.id)}
-                    >
-                      <Minus size={16} />
-                    </button>
-
-                    <span className="text-lg font-semibold">
-                      {getProductQuantity(product.id)}
-                    </span>
-
-                    <button
-                      className="bg-gray-200 p-2 rounded-md"
-                      onClick={() => handleIncrement(product)}
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    className="bg-orange-500 text-white px-4 py-2 rounded-md mt-4 w-full"
-                    onClick={() => handleAddToCart(product)}
-                  >
-                    Add to Cart
-                  </button>
-                )}
-              </div>
             </div>
-          ))}
-        </div>
-      </main>
-    </div>
-  );
+            <div className="flex flex-col bg-gradient-to-r from-yellow-300 to-orange-300 p-3 sm:p-4 rounded-2xl">
+              <h4 className="text-base sm:text-lg font-bold text-center">
+                {product.name}
+              </h4>
+              {product.countInStock === 0 ? (
+                <button
+                  className="bg-gray-400 text-white px-3 sm:px-4 py-2 rounded-md mt-3 sm:mt-4 w-full cursor-not-allowed text-sm sm:text-base"
+                  disabled
+                >
+                  Out of Stock
+                </button>
+              ) : getProductQuantity(product.id) > 0 ? (
+                <div className="flex items-center justify-between mt-3 sm:mt-4">
+                  <button
+                    className="bg-gray-200 p-1.5 sm:p-2 rounded-md"
+                    onClick={() => handleDecrement(product.id)}
+                  >
+                    <Minus size={14} className="sm:w-4 sm:h-4" />
+                  </button>
+
+                  <span className="text-base sm:text-lg font-semibold">
+                    {getProductQuantity(product.id)}
+                  </span>
+
+                  <button
+                    className="bg-gray-200 p-1.5 sm:p-2 rounded-md"
+                    onClick={() => handleIncrement(product)}
+                  >
+                    <Plus size={14} className="sm:w-4 sm:h-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className="bg-orange-500 text-white px-3 sm:px-4 py-2 rounded-md mt-3 sm:mt-4 w-full text-sm sm:text-base"
+                  onClick={() => handleAddToCart(product)}
+                >
+                  Add to Cart
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </main>
+  </div>
+);
 };
 
 export default LandingPage;

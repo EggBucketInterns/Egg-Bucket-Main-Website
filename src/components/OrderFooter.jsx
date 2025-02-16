@@ -6,6 +6,7 @@ import MobileImage from "../assets/Images/mockupo.png"
 import companyLogo from "../assets/Images/logo.png"
 import Linkedin from "../assets/Images/linkedin.png"
 import Instagram from "../assets/Images/insta.png"
+import { MdOutlineEmail } from "react-icons/md";
 
 const Footer = () => {
   return (
@@ -66,11 +67,13 @@ const Footer = () => {
                   +91 9999999999
                 </p> */}
                 <p className="flex items-center font-semibold">
-                  <img
+                  {/* <img
                     src="/src/assets/Images/emailsupport.png"
                     className="h-6 w-6 mr-3"
                     alt="Email Icon"
-                  />{" "}
+                  />{" "} */}
+                  <MdOutlineEmail className="size-8"/>
+
                   support@eggbucket.in
                 </p>
               </div>
