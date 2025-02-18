@@ -5,22 +5,22 @@ export const fetchProducts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await fetch('https://b2c-backend-1.onrender.com/api/v1/admin/getallproducts');
-      
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json(); // Attempt to parse error details
+        throw new Error(`HTTP error! status: ${response.status}, Details: ${JSON.stringify(errorData)}`); // Include details
       }
-      
+
       const data = await response.json();
-      console.log('API Response:', data); // Debug log to see the actual response
+      console.log('API Response:', data);
 
-      // Check if data exists and has products property
-      if (!data) {
-        return rejectWithValue('No data received from API');
+      if (!Array.isArray(data)) { // Ensure it's an array for robustness
+        console.error('Unexpected API Response (Not an array):', data);
+        return rejectWithValue('Invalid data structure received from API (Not an array)');
       }
 
-      // Return the data regardless of structure
-      // This will help us see what we're actually getting
-      return data;
+      return data; // Return the array directly
+
     } catch (error) {
       console.error('API Error:', error);
       return rejectWithValue(error.message);
@@ -33,7 +33,7 @@ const productsSlice = createSlice({
   initialState: {
     products: [],
     loading: false,
-    error: null,
+    error: null, // Initialize error to null
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -44,22 +44,12 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        // Handle the API response structure
-        if (action.payload && action.payload.data) {
-          state.products = action.payload.data;
-        } else if (action.payload && Array.isArray(action.payload)) {
-          state.products = action.payload;
-        } else if (action.payload && action.payload.products) {
-          state.products = action.payload.products;
-        } else {
-          state.error = 'Unexpected data structure';
-          state.products = [];
-        }
+        state.products = action.payload; // Directly assign the product data
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to fetch products';
-        state.products = [];
+        state.error = action.payload || 'Failed to fetch products'; // More informative error
+        state.products = []; // Clear products on error
       });
   },
 });
