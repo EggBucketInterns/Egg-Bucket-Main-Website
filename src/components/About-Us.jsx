@@ -8,6 +8,7 @@ const AboutUs = () => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
   const { scrollY } = useScroll();
+  const[toggle,settoggle] = useState(false);
 
   useEffect(() => {
     if (inView) {
