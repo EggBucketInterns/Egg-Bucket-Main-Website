@@ -48,6 +48,8 @@ const AddAddress = ({ onClose }) => {
 //   }
 // }, [userData]);
 
+
+
   const handleChange = (e) => {
     console.log('Input changed:', e.target.name, e.target.value);  // Log input changes
     setFormData({ ...formData, [e.target.name]: e.target.value });

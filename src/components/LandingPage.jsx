@@ -20,24 +20,21 @@ const imageMapping = {
 const LandingPage = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.localStorage.items);
-  const reduxProducts = useSelector((state) => state.products.products);
-  const loading = useSelector((state) => state.products.loading);
-  const error = useSelector((state) => state.products.error);
-  
+  const { products: reduxProducts, loading, error } = useSelector((state) => state.products);
   const [popupVisible, setPopupVisible] = useState(false);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(null); // Initialize to null
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
+  
+  
   useEffect(() => {
     if (reduxProducts) {
       const mappedProducts = reduxProducts.map((product) => ({
-        id: product.id,
-        name: product.name,
+      ...product,
         price: parseFloat(product.price),
-        discount: product.discount,
         originalPrice: parseFloat(product.currentPrice),
         image: imageMapping[product.name] || pc6,
         countInStock: product.countInStock || 0,
@@ -52,7 +49,7 @@ const LandingPage = () => {
 
   const handleDecrement = (productId) => {
     const item = cartItems.find((item) => item.id === productId);
-    if (item.quantity > 1) {
+    if (item?.quantity > 1) {
       dispatch(decrementItem(productId));
     } else {
       dispatch(removeItem(productId));
@@ -67,9 +64,9 @@ const LandingPage = () => {
 
     const existingProduct = cartItems.find((item) => item.id === product.id);
     if (existingProduct) {
-      dispatch(addItem({ ...existingProduct, quantity: existingProduct.quantity + 1 }));
+      dispatch(addItem({...existingProduct, quantity: existingProduct.quantity + 1 }));
     } else {
-      dispatch(addItem({ ...product, quantity: 1 }));
+      dispatch(addItem({...product, quantity: 1 }));
     }
     setPopupVisible(true);
     setTimeout(() => setPopupVisible(false), 1000);
@@ -77,7 +74,7 @@ const LandingPage = () => {
 
   const getProductQuantity = (productId) => {
     const item = cartItems.find((item) => item.id === productId);
-    return item ? item.quantity : 0;
+    return item?.quantity || 0;
   };
 
   return (
@@ -135,15 +132,17 @@ const LandingPage = () => {
         </h3>
         
         {/* Products Grid with Loading State */}
-        {loading ? (
+        {loading? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-orange-500"></div>
           </div>
-        ) : error ? (
+        ): error? (
           <div className="text-center text-red-500 py-8">
-            Error: {error}
+            Please Referesh The Page
           </div>
-        ) : (
+        ): products === null? (
+          <div className="text-center py-8">Loading Products...</div> // Initial state message
+        ): (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {products.map((product) => (
               <div
