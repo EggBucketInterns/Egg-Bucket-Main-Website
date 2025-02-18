@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTime, useTransform } from "framer-motion";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import eggTrayImage from "../assets/Images/pngwing.com (2).png";
@@ -10,9 +10,14 @@ const Banner = () => {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [100, -150]);
 
+
   useEffect(() => {
     AOS.init({ duration: 1500 });
   }, []);
+
+  
+
+  
 
   return (
     <div

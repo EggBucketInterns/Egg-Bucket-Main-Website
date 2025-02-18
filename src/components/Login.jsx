@@ -157,7 +157,7 @@ function Login() {
 
         <form className="w-full max-w-md mx-auto px-4">
           <div className="mb-4">
-            <label className="block mb-2">phoneNumber Number</label>
+            {/* <label className="block mb-2">PhoneNumber</label> */}
             <div className="flex">
               <span className="flex items-center px-4 bg-gray-200 border rounded-l-md text-gray-700">
                 +91
