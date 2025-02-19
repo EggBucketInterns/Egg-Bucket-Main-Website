@@ -12,6 +12,7 @@ import { db } from "../firebase.config";
 function Login() {
   const [phoneNumber, setPhone] = useState("");
   const [otp, setOtp] = useState("");
+  const [otpSending, setOtpSending] = useState(false); // New state for sending status
   const [otpSent, setOtpSent] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState(null);
   const [message, setMessage] = useState("");
@@ -53,9 +54,11 @@ function Login() {
   }, [navigate]);
 
   const handleLogin = () => {
+    setOtpSending(true); // Set sending to true *before* sending the OTP
+    setMessage("Sending OTP..."); // Display sending message
+
     const appVerifier = window.recaptchaVerifier;
     const formatPh = `+91${phoneNumber}`;
-    console.log(formatPh);
 
     if (appVerifier) {
       signInWithPhoneNumber(auth, formatPh, appVerifier)
@@ -63,16 +66,17 @@ function Login() {
           window.confirmationResult = confirmationResult;
           setConfirmationResult(confirmationResult);
           setOtpSent(true);
+          setOtpSending(false); // Set sending to false *after* successful send
           setMessage("OTP sent successfully!");
         })
         .catch((error) => {
           console.error("Error sending OTP:", error.code, error.message);
+          setOtpSending(false); // Set sending to false even if there's an error
           setMessage("Error sending OTP, please try again.");
         });
     } else {
-      setMessage(
-        "reCAPTCHA not initialized properly. Please refresh and try again."
-      );
+      setOtpSending(false); // Set to false if reCAPTCHA is not initialized
+      setMessage("reCAPTCHA not initialized properly. Please refresh and try again.");
     }
   };
 
@@ -119,7 +123,7 @@ function Login() {
         .confirm(otp)
         .then(async (res) => {
           console.log(res);
-          setMessage(`phoneNumber verified! Welcome ${res.user.phoneNumber}`);
+          setMessage(`User verified! Welcome ${res.user.phoneNumber}`);
           await setIdToken();
         })
         .catch((err) => {
@@ -172,12 +176,13 @@ function Login() {
               />
               <div id="recaptcha-container"></div>{" "}
               <button
-                type="button"
-                onClick={handleLogin}
-                className="bg-[#F0A817] text-white p-2 rounded-r-md hover:bg-[#D08704] focus:outline-none focus:ring-2 focus:ring-orange-500"
-              >
-                Send OTP
-              </button>
+          type="button"
+          onClick={handleLogin}
+          className={`bg-[#F0A817] text-white p-2 rounded-r-md hover:bg-[#D08704] focus:outline-none focus:ring-2 focus:ring-orange-500 ${otpSending ? 'opacity-50 cursor-not-allowed' : ''}`} // Disable button while sending
+          disabled={otpSending} // Disable the button while sending
+        >
+          {otpSending ? "Sending..." : "Send OTP"} {/* Show "Sending..." */}
+        </button>
             </div>
           </div>
 
@@ -205,7 +210,8 @@ function Login() {
             </>
           )}
 
-          <p>{message}</p>
+          <p className={`${message.startsWith("Error") ? "text-red-500" : ""}`}>{message}</p> {/* Conditional styling for error messages */}
+         
         </form>
       </div>
     </div>
