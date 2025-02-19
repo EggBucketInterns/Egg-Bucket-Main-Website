@@ -21,6 +21,8 @@ import { auth } from "./firebase.config";
 import { onAuthStateChanged } from "firebase/auth";
 import Login from "./components/Login";
 import CareerDreamJob from "./pages/CareerDreamJob";
+import {ToastContainer} from 'react-toastify'
+import { Toaster } from 'react-hot-toast';
 
 
 
@@ -47,6 +49,7 @@ const App = () => {
 
   return (
     <div>
+      <Toaster position="top-center" />
       {!isB2CPage && <Navbar />}
       <ScrollToTop />
 
@@ -69,16 +72,4 @@ const App = () => {
 
 export default App;
 
-// const AppWrapper = () => (
-//   <Provider store={store}>
 
-//     <Router>
-
-//       <App />
-
-//     </Router>
-    
-//   </Provider>
-// );
-
-// export default AppWrapper;

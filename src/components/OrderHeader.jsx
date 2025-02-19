@@ -9,6 +9,8 @@ import {
   AiOutlinePlus,
   AiOutlineUser,
 } from "react-icons/ai";
+import { IoMdArrowBack } from "react-icons/io";
+
 import Cart from "./Cart";
 import AddAddress from "./AddAddress";
 import { useSelector } from "react-redux";
@@ -133,12 +135,14 @@ const Header = ({ addToCart, removeFromCart }) => {
                 className="cursor-pointer text-gray-600 hover:text-orange-500 transition-transform transform hover:scale-110"
                 onClick={toggleCart}
               />
+
               <Link
                 className="text-gray-600 hover:text-orange-500 text-2xl"
                 to="/order/account/orders"
               >
                 <AiOutlineUser />
               </Link>
+              
               {!nav ? (
                 <AiOutlineMenu
                   size={25}
@@ -154,11 +158,20 @@ const Header = ({ addToCart, removeFromCart }) => {
               )}
             </div>
             <Link
-              to="/order"
+              to="/"
               className="relative block px-3 py-2 text-gray-600 group ml-8 text-lg md:text-xl"
             >
               <span className="relative z-10 transition-colors group-hover:text-gray-950">
                 Home
+              </span>
+              <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1.5 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
+            </Link>
+            <Link
+              to="/order"
+              className="relative block px-3 py-2 text-gray-600 group ml-8 text-lg md:text-xl"
+            >
+              <span className="relative z-10 transition-colors flex group-hover:text-gray-950">
+              <IoMdArrowBack />
               </span>
               <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1.5 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
             </Link>

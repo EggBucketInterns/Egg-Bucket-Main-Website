@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import egg6 from "../assets/Images/six.jpg";
 import egg12 from "../assets/Images/twleve.jpg";
 import egg30 from "../assets/Images/thirty.jpg";
 import { fetchOrdersForCustomer } from "../redux/orderSlice";
+import { toast } from "react-hot-toast";
 
 const Orders = () => {
   const dispatch = useDispatch();
@@ -12,8 +13,56 @@ const Orders = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [expandedOrderId, setExpandedOrderId] = useState(null);
-  
 
+  const canCancelOrder = (orderTimestamp) => {
+    if (!orderTimestamp?._seconds) return false;
+    const orderTime = new Date(orderTimestamp._seconds * 1000);
+    const currentTime = new Date();
+    const diffInMinutes = (currentTime - orderTime) / 1000 / 60;
+    return diffInMinutes <= 1;
+  };
+
+  const [cancelButtonVisible, setCancelButtonVisible] = useState({});
+  const timersRef = useRef({}); // Use a ref to store timers // Track visibility per order
+
+  const handleCancelOrder = async (orderId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `https://b2c-backend-1.onrender.com/api/v1/order/order/${orderId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to cancel order");
+      }
+
+      // Update the order status in local state instead of removing it
+      setOrdersData((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === orderId ? { ...order, status: "canceled" } : order
+        )
+      );
+
+      // Store the cancelled status in localStorage
+      const cancelledOrders = JSON.parse(
+        localStorage.getItem("cancelledOrders") || "{}"
+      );
+      cancelledOrders[orderId] = true;
+      localStorage.setItem("cancelledOrders", JSON.stringify(cancelledOrders));
+
+      toast.success("Order cancelled successfully");
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      toast.error("Failed to cancel order");
+    }
+  };
 
   const ordersError = useSelector((state) => state.orders.error);
   const ordersLoading = useSelector((state) => state.orders.loading);
@@ -30,17 +79,16 @@ const Orders = () => {
 
       setIsLoading(true);
       try {
-        // Get the authentication token from localStorage or wherever you store it
-        const token = localStorage.getItem('token');
-        
+        const token = localStorage.getItem("token");
+
         const response = await fetch(
           `https://b2c-backend-1.onrender.com/api/v1/order/order?phoneNumber=${userData.phoneNumber}`,
           {
-            method: 'GET',
+            method: "GET",
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}` // Add the token if required
-            }
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
 
@@ -49,16 +97,23 @@ const Orders = () => {
         }
 
         const data = await response.json();
-        console.log("Fetched orders:", data); // Debug log
-        
+
         if (data && Array.isArray(data.orders)) {
-          setOrdersData(data.orders);
+          // Load cancelled status from localStorage
+          const cancelledOrders = JSON.parse(
+            localStorage.getItem("cancelledOrders") || "{}"
+          );
+          const ordersWithCancelStatus = data.orders.map((order) => ({
+            ...order,
+            status: cancelledOrders[order.id] ? "canceled" : order.status,
+          }));
+          setOrdersData(ordersWithCancelStatus);
         } else {
-          throw new Error('Invalid data format received');
+          throw new Error("Invalid data format received");
         }
       } catch (err) {
         setError(err.message);
-        console.error('Error fetching orders:', err);
+        console.error("Error fetching orders:", err);
       } finally {
         setIsLoading(false);
       }
@@ -69,49 +124,76 @@ const Orders = () => {
     }
   }, [userData]);
 
-  
+  // adding new useffect
+  useEffect(() => {
+    // Clear any existing timers
+    Object.values(timersRef.current).forEach(clearTimeout);
+    timersRef.current = {}; // Reset the timers object
+
+    const newCancelButtonVisible = {}; // Create a new object
+
+    ordersData.forEach((order) => {
+      if (canCancelOrder(order.createdAt)) {
+        newCancelButtonVisible[order.id] = true;
+
+        timersRef.current[order.id] = setTimeout(() => {
+          setCancelButtonVisible((prev) => ({ ...prev, [order.id]: false }));
+        }, 50000);
+      }
+    });
+
+    setCancelButtonVisible(newCancelButtonVisible); // Update state in one go
+
+    return () => {
+      Object.values(timersRef.current).forEach(clearTimeout); // Clear timers on unmount
+    };
+  }, [ordersData]);
+
 
   const getImageByName = (name) => {
-  if (name === undefined || name === null) {  // Check for undefined or null
-    console.warn("Product name is undefined or null. Using default image.");
-    return egg6; // Or another appropriate default image
-  }
+    if (name === undefined || name === null) {
+      // Check for undefined or null
+      console.warn("Product name is undefined or null. Using default image.");
+      return egg6; // Or another appropriate default image
+    }
 
-  switch (name.toLowerCase()) {
-    case "6pc_tray":
-    case "e6":
-      return egg6;
-    case "12pc_tray":
-    case "e12":
-      return egg12;
-    case "30pc_tray":
-    case "e30":
-      return egg30;
-    default:
-      console.warn(`Image not found for product: ${name}`);
-      return egg6;
-  }
-};
+    switch (name.toLowerCase()) {
+      case "6pc_tray":
+      case "e6":
+        return egg6;
+      case "12pc_tray":
+      case "e12":
+        return egg12;
+      case "30pc_tray":
+      case "e30":
+        return egg30;
+      default:
+        console.warn(`Image not found for product: ${name}`);
+        return egg6;
+    }
+  };
 
   const formatDate = (timestamp) => {
     if (!timestamp?._seconds) return "Invalid date";
-    
+
     const date = new Date(timestamp._seconds * 1000);
-    return date.toLocaleString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    }).replace(" at", ",");
+    return date
+      .toLocaleString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
+      .replace(" at", ",");
   };
 
   const mapOrderItems = (products) => {
-    return Object.values(products).map(product => ({
+    return Object.values(products).map((product) => ({
       name: product.name,
       quantity: product.quantity,
-      productId: product.productId
+      productId: product.productId,
     }));
   };
 
@@ -129,8 +211,8 @@ const Orders = () => {
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>No orders found for you !</p>;
 
-  const sortedOrders = [...ordersData].sort((a, b) => 
-    (b.createdAt._seconds || 0) - (a.createdAt._seconds || 0)
+  const sortedOrders = [...ordersData].sort(
+    (a, b) => (b.createdAt._seconds || 0) - (a.createdAt._seconds || 0)
   );
 
   return (
@@ -147,7 +229,6 @@ const Orders = () => {
               >
                 <div className="flex flex-col items-start">
                   <div className="flex space-x-2">
-
                     {mapOrderItems(order.products).map((item, i) => (
                       <div key={i} className="relative">
                         <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
@@ -159,7 +240,6 @@ const Orders = () => {
                           className="w-14 h-14 object-cover rounded-md"
                         />
                       </div>
-
                     ))}
                   </div>
 
@@ -170,11 +250,31 @@ const Orders = () => {
                   </div>
                 </div>
 
-                <div>
+                <div className="flex flex-col items-end">
                   <p className="text-lg font-semibold">₹{order.amount}</p>
                   <p className="text-sm text-gray-500">
                     Order ID: {extractOrderId(order.id)}
                   </p>
+                  {order.status === "canceled" ? (
+                    <div className="mt-2 px-3 py-1 bg-orange-500 text-white rounded-md">
+                      Order Cancelled
+                    </div>
+                  ) : cancelButtonVisible[order.id] &&
+                    canCancelOrder(order.createdAt) ? ( // Check visibility and order status
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCancelOrder(order.id);
+                      }}
+                      className="mt-2 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                    >
+                      Cancel Order
+                    </button>
+                  ) : (
+                    <div>
+                      {order.status === "delivered" ? (<div className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md">Delivered</div>) :(<div className="mt-2 px-3 py-1 bg-yellow-500 text-white rounded-md">Pending</div>) }
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -188,8 +288,8 @@ const Orders = () => {
                     <h3 className="font-semibold text-lg">Order Details</h3>
                     <p>
                       <strong>Shipping Address:</strong>{" "}
-                      {order.address?.fullAddress ? 
-                        `${order.address.fullAddress.flatNo}, ${order.address.fullAddress.area}, ${order.address.fullAddress.city}, ${order.address.fullAddress.state}, ${order.address.fullAddress.zipCode}, ${order.address.fullAddress.country}` 
+                      {order.address?.fullAddress
+                        ? `${order.address.fullAddress.flatNo}, ${order.address.fullAddress.area}, ${order.address.fullAddress.city}, ${order.address.fullAddress.state}, ${order.address.fullAddress.zipCode}, ${order.address.fullAddress.country}`
                         : "No address available"}
                     </p>
                     <p>
