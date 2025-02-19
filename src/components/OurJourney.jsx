@@ -39,7 +39,7 @@ const Timeline = () => {
     const containerHeight = timelineContainer.current.offsetHeight;
     const windowHeight = window.innerHeight;
     const maxScrollTop = containerHeight - windowHeight;
-    const slowFactor = 0.47;
+    const slowFactor = 0.25;
     const eggScrollHeight = containerHeight - 200; // Adjust to control where the egg should stop
 
     if (eggScroller.current) {
@@ -72,10 +72,10 @@ const Timeline = () => {
         className="absolute inset-y-0 right-0 top-32 w-96 h-64 bg-cover bg-opacity-90 bg-left bg-no-repeat"
         style={{ backgroundImage: `url(${omelet})` }}
       ></div>
-      <div
+      {/* <div
         className="absolute inset-y-0 right-0 lg:right-28 top-3/4 w-80 h-72 bg-cover bg-right bg-no-repeat"
         style={{ backgroundImage: `url(${hen})` }}
-      ></div>
+      ></div> */}
 
       <div className="absolute top-10 left-1/2 w-1 h-full bg-white-600 transform -translate-x-1/2 z-0"></div>
       <div

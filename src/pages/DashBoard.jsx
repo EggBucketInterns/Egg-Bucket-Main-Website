@@ -12,6 +12,7 @@ export default function DashBoard() {
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/order/login");
+      
     }
   }, [navigate]);
 

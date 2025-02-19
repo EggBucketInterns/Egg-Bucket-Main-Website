@@ -78,7 +78,7 @@ const Profile = () => {
           <p className="flex items-center">
             <strong className="w-24 text-xl font-semibold">Mobile:</strong>
             <span className="ml-2 w-full p-2 border-2 border-x-gray-100 rounded-lg text-lg font-normal">
-              {userData.phoneNumber.slice(2) || 'N/A'}
+              {userData.phoneNumber || 'N/A'}
             </span>
           </p>
           <p className="flex items-center">

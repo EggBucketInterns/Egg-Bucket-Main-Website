@@ -51,20 +51,22 @@ function Account() {
       setSidebarVisible(false);
     }
   };
+  
   const handleLogout = () => {
     auth
       .signOut()
       .then(() => {
         // Clear specific items from local storage
-        localStorage.clear();
-        // localStorage.removeItem("token"); // Remove token
-        // localStorage.removeItem("customerName"); // Remove customer name if stored
-        // localStorage.removeItem("outletId"); // Remove outlet ID if stored
-        // localStorage.removeItem("deliveryPartnerId"); // Remove delivery partner ID if stored
-        // localStorage.removeItem("selectedAddress"); // Remove delivery partner ID if stored
+        // localStorage.clear();
+        localStorage.removeItem("token"); // Remove token
+        localStorage.removeItem("customerName"); // Remove customer name if stored
+        localStorage.removeItem("outletId"); // Remove outlet ID if stored
+        localStorage.removeItem("deliveryPartnerId"); // Remove delivery partner ID if stored
+        localStorage.removeItem("selectedAddress"); // Remove delivery partner ID if stored
 
         // Navigate to login page
         navigate("/order/login");
+        window.location.reload(); 
       })
       .catch((error) => {
         console.error("Error during logout:", error);
