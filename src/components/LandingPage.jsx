@@ -16,30 +16,38 @@ const imageMapping = {
   "30pc_tray": pc30,
 };
 
-
 const LandingPage = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.localStorage.items);
   const { products: reduxProducts, loading, error } = useSelector((state) => state.products);
   const [popupVisible, setPopupVisible] = useState(false);
-  const [products, setProducts] = useState(null); // Initialize to null
+  const [products, setProducts] = useState([]); // Start with empty array for better initial render
 
   useEffect(() => {
+    // Check localStorage for cached products to display immediately
+    const cachedProducts = localStorage.getItem('cachedProducts');
+    if (cachedProducts) {
+      setProducts(JSON.parse(cachedProducts));
+      console.log('Loaded cached products');
+    }
+
+    // Fetch fresh products
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  
-  
   useEffect(() => {
-    if (reduxProducts) {
+    if (reduxProducts && reduxProducts.length > 0) {
       const mappedProducts = reduxProducts.map((product) => ({
-      ...product,
-        price: parseFloat(product.price),
-        originalPrice: parseFloat(product.currentPrice),
+        ...product,
+        price: parseFloat(product.price) || 0,
+        originalPrice: parseFloat(product.currentPrice) || 0,
         image: imageMapping[product.name] || pc6,
         countInStock: product.countInStock || 0,
       }));
       setProducts(mappedProducts);
+      // Cache the products in localStorage
+      localStorage.setItem('cachedProducts', JSON.stringify(mappedProducts));
+      console.log('Products updated and cached:', mappedProducts.length);
     }
   }, [reduxProducts]);
 
@@ -64,9 +72,9 @@ const LandingPage = () => {
 
     const existingProduct = cartItems.find((item) => item.id === product.id);
     if (existingProduct) {
-      dispatch(addItem({...existingProduct, quantity: existingProduct.quantity + 1 }));
+      dispatch(addItem({ ...existingProduct, quantity: existingProduct.quantity + 1 }));
     } else {
-      dispatch(addItem({...product, quantity: 1 }));
+      dispatch(addItem({ ...product, quantity: 1 }));
     }
     setPopupVisible(true);
     setTimeout(() => setPopupVisible(false), 1000);
@@ -86,7 +94,7 @@ const LandingPage = () => {
       )}
 
       <main className="container mx-auto px-4 py-4 sm:py-8">
-        {/* Hero Section - Always visible */}
+        {/* Hero Section */}
         <div
           className="mb-8 sm:mb-12 relative bg-cover bg-no-repeat bg-center rounded-lg overflow-hidden"
           style={{ backgroundImage: `url(${bg})` }}
@@ -105,7 +113,6 @@ const LandingPage = () => {
                 Subscribe Now For Daily And Weekly Delivery
               </p>
             </div>
-
             <div className="w-full sm:w-1/2 flex justify-center items-center relative h-48 sm:h-72 md:h-96">
               <img
                 src={ellipse7}
@@ -130,19 +137,19 @@ const LandingPage = () => {
         <h3 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center md:text-left">
           Our Products
         </h3>
-        
-        {/* Products Grid with Loading State */}
-        {loading? (
+
+        {loading && products.length === 0 ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-orange-500"></div>
+            <span className="ml-4 text-lg">Loading products...</span>
           </div>
-        ): error? (
+        ) : error ? (
           <div className="text-center text-red-500 py-8">
-            Please Referesh The Page
+            Error: {error}. Please refresh the page.
           </div>
-        ): products === null? (
-          <div className="text-center py-8">Loading Products...</div> // Initial state message
-        ): (
+        ) : products.length === 0 ? (
+          <div className="text-center py-8">No products available</div>
+        ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {products.map((product) => (
               <div
