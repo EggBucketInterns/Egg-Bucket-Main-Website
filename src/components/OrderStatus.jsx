@@ -19,7 +19,7 @@ const Orders = () => {
     const orderTime = new Date(orderTimestamp._seconds * 1000);
     const currentTime = new Date();
     const diffInMinutes = (currentTime - orderTime) / 1000 / 60;
-    return diffInMinutes <= 1;
+    return diffInMinutes <= 8;
   };
 
   const [cancelButtonVisible, setCancelButtonVisible] = useState({});
@@ -138,7 +138,7 @@ const Orders = () => {
 
         timersRef.current[order.id] = setTimeout(() => {
           setCancelButtonVisible((prev) => ({ ...prev, [order.id]: false }));
-        }, 50000);
+        }, 480000);
       }
     });
 
