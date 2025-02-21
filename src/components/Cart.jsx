@@ -1,174 +1,94 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { addItem, decrementItem, removeItem } from "../redux/localStorageSlice";
-import { FiChevronDown } from "react-icons/fi";
-import axios from "axios";
+const handlePlaceOrder = async () => {
+  if (!selectedAddress) {
+    setShowSelectAlert(true);
+    return;
+  }
 
-const Cart = ({ toggleCart }) => {
-  const cartItems = useSelector((state) => state.localStorage.items);
-  const dispatch = useDispatch();
+  if (!userData?.phoneNumber) {
+    console.error("No customer data found");
+    return;
+  }
 
-  const { userData } = useSelector((state) => state.user);
-  const navigate = useNavigate();
+  try {
+    setIsLoading(true);
 
-  const [addresses, setAddresses] = useState([]); // Stores address data from API
-  const [selectedAddress, setSelectedAddress] = useState(); // Initialize with null
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [showSelectAlert, setShowSelectAlert] = useState(false);
-  const [localQuantities, setLocalQuantities] = useState({});
-  const [isLoading, setIsLoading] = useState(false); // Loading state
-  const [userToken, setUserToken] = useState(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setUserToken(token);
-  }, []);
-
-  useEffect(() => {
-    // Fetch address data from API
-    const fetchAddresses = async () => {
-      try {
-        const response = await fetch(
-          "https://b2c-backend-1.onrender.com/api/v1/order/order"
-        );
-        const data = await response.json();
-
-        console.log("Fetched addresses:", data); // Check the response format
-
-        // Check if orders exist and extract the address information
-        if (data.orders && Array.isArray(data.orders)) {
-
-          const orderAddresses = data.orders
-            .map((order) => order?.address?.fullAddress) // Safely access fullAddress
-            .filter(Boolean); // Remove undefined or null items
-          setAddresses(orderAddresses); // Store only valid addresses
-
-        } else {
-          console.error("No valid order data found");
-        }
-
-        // Pre-select the first address if available
-        if (data.orders && data.orders.length > 0) {
-          setSelectedAddress(data.orders[0].address.fullAddress);
-        }
-      } catch (error) {
-        console.error("Failed to fetch addresses:", error);
-      }
-    };
-
-    fetchAddresses();
-  }, []);
-
-  const handleIncrement = (item) => {
-    dispatch(addItem(item));
-  };
-
-  const handleDecrement = (itemId) => {
-    const item = cartItems.find((item) => item.id === itemId);
-    if (item.quantity > 1) {
-      dispatch(decrementItem(itemId));
-    } else {
-      dispatch(removeItem(itemId));
-    }
-  };
-
-  const clearCart = () => {
-    cartItems.forEach((item) => {
-      dispatch(removeItem(item.id)); // Dispatch remove action for each item
-    });
-    setLocalQuantities({}); // Reset local quantities
-  };
-
-  const handlePlaceOrder = async () => {
-    if (!selectedAddress) {
-      setShowSelectAlert(true);
-      return;
-    }
-
-    const customer = userData;
-    if (!customer) {
-      console.error("No customer data found in Redux");
-      return;
-    }
-
+    // Map the cart items to the correct product IDs and their quantities
     const products = cartItems.reduce((acc, item) => {
-      let mappedId;
-      if (item.id === 1) {
-        mappedId = "E30";
-      } else if (item.id === 2) {
-        mappedId = "E6";
-      } else if (item.id === 3) {
-        mappedId = "E12";
-      } else {
-        mappedId = item.id; // Use item.id if no mapping exists
+      // Map your frontend IDs to backend product IDs
+      let backendId;
+      switch (item.id) {
+        case 1:
+          backendId = 'E30';
+          break;
+        case 2:
+          backendId = 'E6';
+          break;
+        case 3:
+          backendId = 'E12';
+          break;
+        default:
+          backendId = item.id.toString();
       }
-      acc[mappedId] = {
-        productId: mappedId,
-        name: item.name,
-        quantity: localQuantities[item.id],
-      };
+      
+      // Add to accumulator with just the quantity
+      acc[backendId] = item.quantity;
+      
       return acc;
     }, {});
 
+    
     const orderPayload = {
       address: selectedAddress,
       amount: totalPrice,
-      products,
-      customerId: customer.phoneNumber,
+      products, // This will be an object like { E6: 2, E12: 1, E30: 3 }
+      customerId: userData.phoneNumber
     };
 
-    try {
-      setIsLoading(true); // Start loading
-      const response = await axios.post(
-        "https://b2c-backend-1.onrender.com/api/v1/order/order",
-        orderPayload,
-        { validateStatus: () => true } // Avoid throwing errors for HTTP status codes
-      );
+    console.log('Order Payload:', orderPayload); // For debugging
 
-      if (response.data.status === "success") {
-        setSuccessMessage("Order placed successfully!");
-        clearCart(); // Clear cart on success
-      } else if (
-        response.data.status === "fail" &&
-        response.data.message ===
-          "No nearby outlets, we will soon expand here!!"
-      ) {
-        setSuccessMessage(response.data.message); // Show failure message
-        setTimeout(() => {
-          setSuccessMessage(""); // Clear message after 5 seconds
-        }, 3000); // Show failure message for 5 seconds
-      } else {
-        setSuccessMessage("Failed to place order. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error placing order:", error);
+    const response = await axios.post(
+      "https://b2c-backend-1.onrender.com/api/v1/order/order",
+      orderPayload,
+      { validateStatus: () => true }
+    );
+
+    if (response.data.status === "success") {
+      setSuccessMessage("Order placed successfully!");
+      clearCart();
+    } else if (
+      response.data.status === "fail" &&
+      response.data.message === "No nearby outlets, we will soon expand here!!"
+    ) {
+      setSuccessMessage(response.data.message);
+      setTimeout(() => setSuccessMessage(""), 3000);
+    } else {
       setSuccessMessage("Failed to place order. Please try again.");
-    } finally {
-      setIsLoading(false); // End loading
     }
-  };
+  } catch (error) {
+    console.error("Error placing order:", error);
+    setSuccessMessage("Failed to place order. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  // useEffect(() => {
+  //   // Update localQuantities when cartItems change
+  //   const newLocalQuantities = cartItems.reduce((acc, item) => {
+  //     acc[item.id] = item.quantity;
+  //     return acc;
+  //   }, {});
+  //   setLocalQuantities(newLocalQuantities);
+  // }, [cartItems]);
+
+  // const subtotal = cartItems.reduce(
+  //   (acc, item) => acc + item.price * item.quantity,
+  //   0
+  // );
 
 
-
-  useEffect(() => {
-    // Update localQuantities when cartItems change
-    const newLocalQuantities = cartItems.reduce((acc, item) => {
-      acc[item.id] = item.quantity;
-      return acc;
-    }, {});
-    setLocalQuantities(newLocalQuantities);
-  }, [cartItems]);
-
-  const subtotal = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
-
-
-  const shipping = 50; // Flat shipping rate
-  const totalPrice = subtotal + shipping;
+  // const shipping = 50; // Flat shipping rate
+  // const totalPrice = subtotal + shipping;
 
   return (
     <div className="fixed right-0 top-0 w-96 h-full bg-white shadow-lg p-4 z-50">
