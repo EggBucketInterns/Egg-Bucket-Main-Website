@@ -27,7 +27,90 @@ const Orders = () => {
     return true;
   };
 
-  // Helper function to check if order can be cancelled
+  // Helper function to filter orders by phone number
+  const filterOrdersByPhoneNumber = (orders, phoneNumber) => {
+    if (!phoneNumber) return [];
+    console.log("Filtering orders for phone number:", phoneNumber);
+    console.log("Total orders before filtering:", orders.length);
+    
+    const filteredOrders = orders.filter(order => {
+      const orderId = order.id || '';
+      const phoneMatch = orderId.split('-')[0] === phoneNumber;
+      return phoneMatch;
+    });
+    
+    console.log("Filtered orders:", filteredOrders.length);
+    return filteredOrders;
+  };
+
+  // Fetch orders when component mounts or user changes
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!userData?.phoneNumber || !verifyUserToken()) {
+        setOrdersData([]);
+        return;
+      }
+
+      console.log("Fetching orders for user:", userData.phoneNumber);
+      setIsLoading(true);
+      
+      try {
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(
+          `https://b2c-backend-1.onrender.com/api/v1/order/order`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`${response.status}`);
+        }
+
+        if (!verifyUserToken()) {
+          return;
+        }
+
+        const data = await response.json();
+        console.log("Raw API response:", data);
+
+        if (data && Array.isArray(data.orders)) {
+          const cancelledOrders = JSON.parse(
+            localStorage.getItem("cancelledOrders") || "{}"
+          );
+
+          // Filter orders by phone number before setting state
+          const filteredOrders = filterOrdersByPhoneNumber(data.orders, userData.phoneNumber);
+          console.log("Filtered orders:", filteredOrders);
+
+          const ordersWithCancelStatus = filteredOrders.map((order) => ({
+            ...order,
+            status: cancelledOrders[order.id] ? "canceled" : order.status,
+          }));
+          
+          setOrdersData(ordersWithCancelStatus);
+        } else {
+          console.log("No orders array in response");
+          setOrdersData([]);
+        }
+      } catch (err) {
+        setError(err.message);
+        console.error("Error fetching orders:", err);
+        setOrdersData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [userData, userToken]);
+
+  // Rest of your component code remains the same...
   const canCancelOrder = (orderTimestamp) => {
     if (!orderTimestamp?._seconds) return false;
     const orderTime = new Date(orderTimestamp._seconds * 1000);
@@ -36,7 +119,6 @@ const Orders = () => {
     return diffInMinutes <= 8;
   };
 
-  // Handler for order cancellation
   const handleCancelOrder = async (orderId) => {
     try {
       const token = localStorage.getItem("token");
@@ -51,7 +133,6 @@ const Orders = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -79,64 +160,6 @@ const Orders = () => {
     }
   };
 
-  // Fetch orders when component mounts or user changes
-  useEffect(() => {
-    const fetchOrders = async () => {
-      if (!userData?.phoneNumber || !verifyUserToken()) {
-        setOrdersData([]);
-        return;
-      }
-
-      setIsLoading(true);
-      try {
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(
-          `https://b2c-backend-1.onrender.com/api/v1/order/order?phoneNumber=${userData.phoneNumber}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`${response.status}`);
-        }
-
-        if (!verifyUserToken()) {
-          return;
-        }
-
-        const data = await response.json();
-
-        if (data && Array.isArray(data.orders)) {
-          const cancelledOrders = JSON.parse(
-            localStorage.getItem("cancelledOrders") || "{}"
-          );
-          const ordersWithCancelStatus = data.orders.map((order) => ({
-            ...order,
-            status: cancelledOrders[order.id] ? "canceled" : order.status,
-          }));
-          setOrdersData(ordersWithCancelStatus);
-        } else {
-          setOrdersData([]);
-        }
-      } catch (err) {
-        setError(err.message);
-        console.error("Error fetching orders:", err);
-        setOrdersData([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, [userData, userToken]);
-
-  // Manage cancel button visibility
   useEffect(() => {
     Object.values(timersRef.current).forEach(clearTimeout);
     timersRef.current = {};
@@ -149,7 +172,7 @@ const Orders = () => {
 
         timersRef.current[order.id] = setTimeout(() => {
           setCancelButtonVisible((prev) => ({ ...prev, [order.id]: false }));
-        }, 480000); // 8 minutes
+        }, 480000);
       }
     });
 
@@ -160,7 +183,6 @@ const Orders = () => {
     };
   }, [ordersData]);
 
-  // Helper function to get correct image based on product name
   const getImageByName = (name) => {
     if (!name) {
       return egg6;
@@ -181,7 +203,6 @@ const Orders = () => {
     }
   };
 
-  // Helper function to format date
   const formatDate = (timestamp) => {
     if (!timestamp?._seconds) return "Invalid date";
 
@@ -198,16 +219,14 @@ const Orders = () => {
       .replace(" at", ",");
   };
 
-  // Helper function to map order items
   const mapOrderItems = (products) => {
     return Object.values(products).map((product) => ({
-      name: product.name,
-      quantity: product.quantity,
+      name: product.name || product.productId,
+      quantity: product.quantity || 1,
       productId: product.productId,
     }));
   };
 
-  // Helper function to extract order ID
   const extractOrderId = (docId) => {
     if (docId && docId.includes("-")) {
       return docId.split("-")[1];
@@ -215,7 +234,6 @@ const Orders = () => {
     return docId;
   };
 
-  // Handler for expanding/collapsing order details
   const handleOrderClick = (orderId) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
   };
@@ -246,7 +264,7 @@ const Orders = () => {
                     {mapOrderItems(order.products).map((item, i) => (
                       <div key={i} className="relative">
                         <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-                          {item.quantity || 1}
+                          {item.quantity}
                         </span>
                         <img
                           src={getImageByName(item.name)}
