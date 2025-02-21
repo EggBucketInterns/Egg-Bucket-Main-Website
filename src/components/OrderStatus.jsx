@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import egg6 from "../assets/Images/six.jpg";
 import egg12 from "../assets/Images/twleve.jpg";
 import egg30 from "../assets/Images/thirty.jpg";
-import { fetchOrdersForCustomer } from "../redux/orderSlice";
 import { toast } from "react-hot-toast";
 
 const Orders = () => {
@@ -13,7 +12,22 @@ const Orders = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [expandedOrderId, setExpandedOrderId] = useState(null);
+  const [cancelButtonVisible, setCancelButtonVisible] = useState({});
+  const timersRef = useRef({});
+  const [userToken, setUserToken] = useState(localStorage.getItem("token"));
 
+  // Helper function to verify if current token matches stored token
+  const verifyUserToken = () => {
+    const currentToken = localStorage.getItem("token");
+    if (currentToken !== userToken) {
+      setOrdersData([]);
+      setUserToken(currentToken);
+      return false;
+    }
+    return true;
+  };
+
+  // Helper function to check if order can be cancelled
   const canCancelOrder = (orderTimestamp) => {
     if (!orderTimestamp?._seconds) return false;
     const orderTime = new Date(orderTimestamp._seconds * 1000);
@@ -22,12 +36,15 @@ const Orders = () => {
     return diffInMinutes <= 8;
   };
 
-  const [cancelButtonVisible, setCancelButtonVisible] = useState({});
-  const timersRef = useRef({}); // Use a ref to store timers // Track visibility per order
-
+  // Handler for order cancellation
   const handleCancelOrder = async (orderId) => {
     try {
       const token = localStorage.getItem("token");
+      if (!token || !verifyUserToken()) {
+        toast.error("Please log in again");
+        return;
+      }
+
       const response = await fetch(
         `https://b2c-backend-1.onrender.com/api/v1/order/order/${orderId}`,
         {
@@ -43,14 +60,12 @@ const Orders = () => {
         throw new Error("Failed to cancel order");
       }
 
-      // Update the order status in local state instead of removing it
       setOrdersData((prevOrders) =>
         prevOrders.map((order) =>
           order.id === orderId ? { ...order, status: "canceled" } : order
         )
       );
 
-      // Store the cancelled status in localStorage
       const cancelledOrders = JSON.parse(
         localStorage.getItem("cancelledOrders") || "{}"
       );
@@ -64,16 +79,11 @@ const Orders = () => {
     }
   };
 
-  const ordersError = useSelector((state) => state.orders.error);
-  const ordersLoading = useSelector((state) => state.orders.loading);
-
-  if (ordersLoading) return <p>Loading...</p>;
-  if (ordersError) return <p> {ordersError}</p>;
-
+  // Fetch orders when component mounts or user changes
   useEffect(() => {
     const fetchOrders = async () => {
-      if (!userData?.phoneNumber) {
-        console.error("Phone number is missing in userData.");
+      if (!userData?.phoneNumber || !verifyUserToken()) {
+        setOrdersData([]);
         return;
       }
 
@@ -96,10 +106,13 @@ const Orders = () => {
           throw new Error(`${response.status}`);
         }
 
+        if (!verifyUserToken()) {
+          return;
+        }
+
         const data = await response.json();
 
         if (data && Array.isArray(data.orders)) {
-          // Load cancelled status from localStorage
           const cancelledOrders = JSON.parse(
             localStorage.getItem("cancelledOrders") || "{}"
           );
@@ -109,28 +122,26 @@ const Orders = () => {
           }));
           setOrdersData(ordersWithCancelStatus);
         } else {
-          throw new Error("Invalid data format received");
+          setOrdersData([]);
         }
       } catch (err) {
         setError(err.message);
         console.error("Error fetching orders:", err);
+        setOrdersData([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (userData?.phoneNumber) {
-      fetchOrders();
-    }
-  }, [userData]);
+    fetchOrders();
+  }, [userData, userToken]);
 
-  // adding new useffect
+  // Manage cancel button visibility
   useEffect(() => {
-    // Clear any existing timers
     Object.values(timersRef.current).forEach(clearTimeout);
-    timersRef.current = {}; // Reset the timers object
+    timersRef.current = {};
 
-    const newCancelButtonVisible = {}; // Create a new object
+    const newCancelButtonVisible = {};
 
     ordersData.forEach((order) => {
       if (canCancelOrder(order.createdAt)) {
@@ -138,23 +149,21 @@ const Orders = () => {
 
         timersRef.current[order.id] = setTimeout(() => {
           setCancelButtonVisible((prev) => ({ ...prev, [order.id]: false }));
-        }, 480000);
+        }, 480000); // 8 minutes
       }
     });
 
-    setCancelButtonVisible(newCancelButtonVisible); // Update state in one go
+    setCancelButtonVisible(newCancelButtonVisible);
 
     return () => {
-      Object.values(timersRef.current).forEach(clearTimeout); // Clear timers on unmount
+      Object.values(timersRef.current).forEach(clearTimeout);
     };
   }, [ordersData]);
 
-
+  // Helper function to get correct image based on product name
   const getImageByName = (name) => {
-    if (name === undefined || name === null) {
-      // Check for undefined or null
-      console.warn("Product name is undefined or null. Using default image.");
-      return egg6; // Or another appropriate default image
+    if (!name) {
+      return egg6;
     }
 
     switch (name.toLowerCase()) {
@@ -168,11 +177,11 @@ const Orders = () => {
       case "e30":
         return egg30;
       default:
-        console.warn(`Image not found for product: ${name}`);
         return egg6;
     }
   };
 
+  // Helper function to format date
   const formatDate = (timestamp) => {
     if (!timestamp?._seconds) return "Invalid date";
 
@@ -189,6 +198,7 @@ const Orders = () => {
       .replace(" at", ",");
   };
 
+  // Helper function to map order items
   const mapOrderItems = (products) => {
     return Object.values(products).map((product) => ({
       name: product.name,
@@ -197,6 +207,7 @@ const Orders = () => {
     }));
   };
 
+  // Helper function to extract order ID
   const extractOrderId = (docId) => {
     if (docId && docId.includes("-")) {
       return docId.split("-")[1];
@@ -204,12 +215,13 @@ const Orders = () => {
     return docId;
   };
 
+  // Handler for expanding/collapsing order details
   const handleOrderClick = (orderId) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
   };
 
   if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>No orders found for you !</p>;
+  if (error) return <p>Error loading orders. Please try again.</p>;
 
   const sortedOrders = [...ordersData].sort(
     (a, b) => (b.createdAt._seconds || 0) - (a.createdAt._seconds || 0)
@@ -217,8 +229,10 @@ const Orders = () => {
 
   return (
     <div className="h-3/4 lg:h-2/3 overflow-y-auto bg-gray-100 rounded-lg">
-      {sortedOrders.length === 0 ? (
-        <p className="text-black text-center text-lg">No orders done</p>
+      {!userData?.phoneNumber ? (
+        <p className="text-black text-center text-lg">Please log in to view orders</p>
+      ) : sortedOrders.length === 0 ? (
+        <p className="text-black text-center text-lg">No orders found</p>
       ) : (
         <div className="space-y-4 m-4">
           {sortedOrders.map((order) => (
@@ -260,7 +274,7 @@ const Orders = () => {
                       Order Cancelled
                     </div>
                   ) : cancelButtonVisible[order.id] &&
-                    canCancelOrder(order.createdAt) ? ( // Check visibility and order status
+                    canCancelOrder(order.createdAt) ? (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -272,7 +286,15 @@ const Orders = () => {
                     </button>
                   ) : (
                     <div>
-                      {order.status === "delivered" ? (<div className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md">Delivered</div>) :(<div className="mt-2 px-3 py-1 bg-yellow-500 text-white rounded-md">Pending</div>) }
+                      {order.status === "delivered" ? (
+                        <div className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md">
+                          Delivered
+                        </div>
+                      ) : (
+                        <div className="mt-2 px-3 py-1 bg-yellow-500 text-white rounded-md">
+                          Pending
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
