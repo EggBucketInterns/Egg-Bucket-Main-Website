@@ -14,9 +14,6 @@ const Orders = () => {
   const [error, setError] = useState(null);
   const [expandedOrderId, setExpandedOrderId] = useState(null);
 
-  const totalTime = 10 * 60; // 10 minutes in seconds
-  const [timeLeft, setTimeLeft] = useState(totalTime);
-
   const canCancelOrder = (orderTimestamp) => {
     if (!orderTimestamp?._seconds) return false;
     const orderTime = new Date(orderTimestamp._seconds * 1000);
@@ -27,19 +24,6 @@ const Orders = () => {
 
   const [cancelButtonVisible, setCancelButtonVisible] = useState({});
   const timersRef = useRef({}); // Use a ref to store timers // Track visibility per order
-
-
-  useEffect(() => {
-    if (timeLeft <= 0) return;
-
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [timeLeft]);
-
-  const progress = ((totalTime - timeLeft) / totalTime) * 100;
 
   const handleCancelOrder = async (orderId) => {
     try {
@@ -96,19 +80,9 @@ const Orders = () => {
       setIsLoading(true);
       try {
         const token = localStorage.getItem("token");
-        
-        // Fix 1: Ensure token exists
-        if (!token) {
-          throw new Error("Authentication token not found");
-        }
 
-        // Fix 2: Properly encode the phone number for URL
-        const encodedPhone = encodeURIComponent(userData.phoneNumber);
-        console.log("userData.phoneNumber",userData.phoneNumber);
-        
-        // Fix 3: Use the correct endpoint with proper phone number parameter
         const response = await fetch(
-          `https://b2c-backend-1.onrender.com/api/v1/order/order/customer/${userData?.phoneNumber}`,
+          `https://b2c-backend-1.onrender.com/api/v1/order/order?phoneNumber=${userData.phoneNumber}`,
           {
             method: "GET",
             headers: {
@@ -119,7 +93,7 @@ const Orders = () => {
         );
 
         if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
+          throw new Error(`${response.status}`);
         }
 
         const data = await response.json();
@@ -129,17 +103,10 @@ const Orders = () => {
           const cancelledOrders = JSON.parse(
             localStorage.getItem("cancelledOrders") || "{}"
           );
-          
-          // Fix 4: Add additional validation to ensure orders belong to current user
-          const filteredOrders = data.orders.filter(
-            order => order.customerId === userData.phoneNumber
-          );
-          
-          const ordersWithCancelStatus = filteredOrders.map((order) => ({
+          const ordersWithCancelStatus = data.orders.map((order) => ({
             ...order,
             status: cancelledOrders[order.id] ? "canceled" : order.status,
           }));
-          
           setOrdersData(ordersWithCancelStatus);
         } else {
           throw new Error("Invalid data format received");
@@ -156,6 +123,7 @@ const Orders = () => {
       fetchOrders();
     }
   }, [userData]);
+
   // adding new useffect
   useEffect(() => {
     // Clear any existing timers
@@ -223,9 +191,9 @@ const Orders = () => {
 
   const mapOrderItems = (products) => {
     return Object.values(products).map((product) => ({
-      name: product?.name || 'Unknown Product', // Add default value here
-      quantity: product?.quantity || 0,
-      productId: product?.productId
+      name: product.name,
+      quantity: product.quantity,
+      productId: product.productId,
     }));
   };
 
@@ -287,35 +255,21 @@ const Orders = () => {
                   <p className="text-sm text-gray-500">
                     Order ID: {extractOrderId(order.id)}
                   </p>
-                  
-                  
                   {order.status === "canceled" ? (
                     <div className="mt-2 px-3 py-1 bg-orange-500 text-white rounded-md">
                       Order Cancelled
                     </div>
                   ) : cancelButtonVisible[order.id] &&
                     canCancelOrder(order.createdAt) ? ( // Check visibility and order status
-                      <div className="flex items-center justify-center max-w-md mx-auto mt-10">
-                      {/* Clickable Progress Bar */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCancelOrder(order.id);
-                        }}
-                        className="relative w-full h-10 bg-gray-300 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 hover:opacity-80"
-                      >
-                        <div
-                          className="absolute top-0 left-0 h-full bg-blue-500 transition-all duration-300"
-                          style={{ width: `${progress}%` }}
-                        ></div>
-                        <span className="relative z-10 flex flex-col items-center justify-center w-full h-full text-sm font-semibold text-black p-2">
-  {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")} min left
-  <span className="text-sm font-semibold text-red-600 mt-1">Cancel</span>
-</span>
-
-                      </button>
-                    </div>
-                    
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCancelOrder(order.id);
+                      }}
+                      className="mt-2 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                    >
+                      Cancel Order
+                    </button>
                   ) : (
                     <div>
                       {order.status === "delivered" ? (<div className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md">Delivered</div>) :(<div className="mt-2 px-3 py-1 bg-yellow-500 text-white rounded-md">Pending</div>) }
@@ -343,18 +297,17 @@ const Orders = () => {
                     </p>
                     <h4 className="mt-2 font-semibold">Products:</h4>
                     {mapOrderItems(order.products).map((item, i) => (
-        <div key={i} className="flex items-center mt-1">
-          <img
-            src={getImageByName(item.name)}
-            alt={item.name}
-            className="w-10 h-10 object-cover rounded-md"
-          />
-          <p className="ml-2">
-            {/* Add null check and default value here */}
-            {(item.name ? item.name.toUpperCase() : 'UNKNOWN')} - Quantity: {item.quantity || 0}
-          </p>
-        </div>
-      ))}
+                      <div key={i} className="flex items-center mt-1">
+                        <img
+                          src={getImageByName(item.name)}
+                          alt={item.name}
+                          className="w-10 h-10 object-cover rounded-md"
+                        />
+                        <p className="ml-2">
+                          {item.name.toUpperCase()} - Quantity: {item.quantity}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
