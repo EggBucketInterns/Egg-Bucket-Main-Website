@@ -24,22 +24,66 @@ const Cart = ({ toggleCart }) => {
     setUserToken(token);
   }, []);
 
+  // Helper function to filter orders by phone number
+  const filterOrdersByPhoneNumber = (orders, phoneNumber) => {
+    if (!phoneNumber || !Array.isArray(orders)) return [];
+
+    return orders.filter((order) => {
+      const orderId = order.id || "";
+      return orderId.split("-")[0] === phoneNumber;
+    });
+  };
+
+  // Extract unique addresses from orders
+  const extractUniqueAddresses = (orders) => {
+    const uniqueAddresses = new Map();
+
+    orders.forEach((order) => {
+      if (order.address?.fullAddress) {
+        const addressKey = JSON.stringify(order.address.fullAddress);
+        if (!uniqueAddresses.has(addressKey)) {
+          uniqueAddresses.set(addressKey, order.address);
+        }
+      }
+    });
+
+    return Array.from(uniqueAddresses.values());
+  };
+
+  // Fetch addresses from orders
   useEffect(() => {
     const fetchAddresses = async () => {
+      if (!userToken || !userData?.phoneNumber) return;
+
       try {
         const response = await fetch(
-          "https://b2c-backend-1.onrender.com/api/v1/order/order"
+          "https://b2c-backend-1.onrender.com/api/v1/order/order",
+          {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
         );
+
+        if (!response.ok) throw new Error("Failed to fetch orders");
+
         const data = await response.json();
 
-        if (data.orders && Array.isArray(data.orders)) {
-          const orderAddresses = data.orders
-            .map((order) => order?.address)
-            .filter(Boolean);
-          setAddresses(orderAddresses);
+        if (data && Array.isArray(data.orders)) {
+          // Filter orders by phone number
+          const userOrders = filterOrdersByPhoneNumber(
+            data.orders,
+            userData.phoneNumber
+          );
 
-          if (orderAddresses.length > 0) {
-            setSelectedAddress(orderAddresses[0]);
+          // Extract unique addresses
+          const uniqueAddresses = extractUniqueAddresses(userOrders);
+
+          setAddresses(uniqueAddresses);
+
+          // Set first address as selected if none is selected
+          if (!selectedAddress && uniqueAddresses.length > 0) {
+            setSelectedAddress(uniqueAddresses[0]);
           }
         }
       } catch (error) {
@@ -47,41 +91,23 @@ const Cart = ({ toggleCart }) => {
       }
     };
 
-    if (userToken) {
-      fetchAddresses();
-    }
-  }, [userToken]);
+    fetchAddresses();
+  }, [userToken, userData?.phoneNumber]);
 
-  const handleIncrement = (item) => {
-    dispatch(addItem(item));
+  // Format address for display
+  const formatAddress = (address) => {
+    if (!address?.fullAddress) return "Select Address";
+
+    const { flatNo, area, city, state, zipCode, country } = address.fullAddress;
+    return `${flatNo}, ${area}, ${city}, ${state}, ${zipCode}, ${country}`;
   };
 
-  const handleDecrement = (itemId) => {
-    const item = cartItems.find((item) => item.id === itemId);
-    if (item?.quantity > 1) {
-      dispatch(decrementItem(itemId));
-    } else {
-      dispatch(removeItem(itemId));
-    }
-  };
-
-  const clearCart = () => {
-    cartItems.forEach((item) => {
-      dispatch(removeItem(item.id));
-    });
-  };
-
+  // Rest of your existing Cart component code...
   const handleSelectAddress = (address) => {
     setSelectedAddress(address);
     setIsDropdownOpen(false);
+    setShowSelectAlert(false);
   };
-
-  const subtotal = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
-  const shipping = 50;
-  const totalPrice = subtotal + shipping;
 
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
@@ -101,18 +127,18 @@ const Cart = ({ toggleCart }) => {
         let backendId;
         switch (item.id) {
           case 1:
-            backendId = 'E30';
+            backendId = "E30";
             break;
           case 2:
-            backendId = 'E6';
+            backendId = "E6";
             break;
           case 3:
-            backendId = 'E12';
+            backendId = "E12";
             break;
           default:
             backendId = item.id.toString();
         }
-        
+
         acc[backendId] = item.quantity;
         return acc;
       }, {});
@@ -121,7 +147,7 @@ const Cart = ({ toggleCart }) => {
         address: selectedAddress,
         amount: totalPrice,
         products,
-        customerId: userData.phoneNumber
+        customerId: userData.phoneNumber,
       };
 
       const response = await axios.post(
@@ -135,7 +161,8 @@ const Cart = ({ toggleCart }) => {
         clearCart();
       } else if (
         response.data.status === "fail" &&
-        response.data.message === "No nearby outlets, we will soon expand here!!"
+        response.data.message ===
+          "No nearby outlets, we will soon expand here!!"
       ) {
         setSuccessMessage(response.data.message);
         setTimeout(() => setSuccessMessage(""), 3000);
@@ -227,22 +254,21 @@ const Cart = ({ toggleCart }) => {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex justify-between items-center cursor-pointer border p-2 rounded-md"
               >
-                <span>
-                  {selectedAddress?.fullAddress
-                    ? `${selectedAddress.fullAddress.flatNo}, ${selectedAddress.fullAddress.area}, ${selectedAddress.fullAddress.city}, ${selectedAddress.fullAddress.state}`
-                    : "Select Address"}
+                <span className="truncate">
+                  {formatAddress(selectedAddress)}
                 </span>
                 <FiChevronDown />
               </div>
+
               {isDropdownOpen && (
                 <ul className="absolute bg-white border rounded-md shadow-lg mt-1 w-full z-30 max-h-80 overflow-y-auto">
-                  {userData?.addresses?.map((address, index) => (
+                  {addresses.map((address, index) => (
                     <li
                       key={index}
                       onClick={() => handleSelectAddress(address)}
-                      className="p-2 cursor-pointer hover:bg-orange-200"
+                      className="p-2 cursor-pointer hover:bg-orange-200 truncate"
                     >
-                      {`${address.fullAddress.flatNo}, ${address.fullAddress.area}, ${address.fullAddress.city}, ${address.fullAddress.state}, ${address.fullAddress.country}-${address.fullAddress.zipCode}`}
+                      {formatAddress(address)}
                     </li>
                   ))}
                 </ul>
