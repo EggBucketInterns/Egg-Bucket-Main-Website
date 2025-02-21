@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import egg6 from "../assets/Images/six.jpg";
 import egg12 from "../assets/Images/twleve.jpg";
 import egg30 from "../assets/Images/thirty.jpg";
-import { fetchOrdersForCustomer } from "../redux/orderSlice";
 import { toast } from "react-hot-toast";
 
 const Orders = () => {
@@ -13,76 +12,53 @@ const Orders = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [expandedOrderId, setExpandedOrderId] = useState(null);
-
-  const canCancelOrder = (orderTimestamp) => {
-    if (!orderTimestamp?._seconds) return false;
-    const orderTime = new Date(orderTimestamp._seconds * 1000);
-    const currentTime = new Date();
-    const diffInMinutes = (currentTime - orderTime) / 1000 / 60;
-    return diffInMinutes <= 8;
-  };
-
   const [cancelButtonVisible, setCancelButtonVisible] = useState({});
-  const timersRef = useRef({}); // Use a ref to store timers // Track visibility per order
+  const timersRef = useRef({});
+  const [userToken, setUserToken] = useState(localStorage.getItem("token"));
 
-  const handleCancelOrder = async (orderId) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `https://b2c-backend-1.onrender.com/api/v1/order/order/${orderId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to cancel order");
-      }
-
-      // Update the order status in local state instead of removing it
-      setOrdersData((prevOrders) =>
-        prevOrders.map((order) =>
-          order.id === orderId ? { ...order, status: "canceled" } : order
-        )
-      );
-
-      // Store the cancelled status in localStorage
-      const cancelledOrders = JSON.parse(
-        localStorage.getItem("cancelledOrders") || "{}"
-      );
-      cancelledOrders[orderId] = true;
-      localStorage.setItem("cancelledOrders", JSON.stringify(cancelledOrders));
-
-      toast.success("Order cancelled successfully");
-    } catch (error) {
-      console.error("Error cancelling order:", error);
-      toast.error("Failed to cancel order");
+  // Helper function to verify if current token matches stored token
+  const verifyUserToken = () => {
+    const currentToken = localStorage.getItem("token");
+    if (currentToken !== userToken) {
+      setOrdersData([]);
+      setUserToken(currentToken);
+      return false;
     }
+    return true;
   };
 
-  const ordersError = useSelector((state) => state.orders.error);
-  const ordersLoading = useSelector((state) => state.orders.loading);
+  // Helper function to filter orders by phone number
+  const filterOrdersByPhoneNumber = (orders, phoneNumber) => {
+    if (!phoneNumber) return [];
+    console.log("Filtering orders for phone number:", phoneNumber);
+    console.log("Total orders before filtering:", orders.length);
+    
+    const filteredOrders = orders.filter(order => {
+      const orderId = order.id || '';
+      const phoneMatch = orderId.split('-')[0] === phoneNumber;
+      return phoneMatch;
+    });
+    
+    console.log("Filtered orders:", filteredOrders.length);
+    return filteredOrders;
+  };
 
-  if (ordersLoading) return <p>Loading...</p>;
-  if (ordersError) return <p> {ordersError}</p>;
-
+  // Fetch orders when component mounts or user changes
   useEffect(() => {
     const fetchOrders = async () => {
-      if (!userData?.phoneNumber) {
-        console.error("Phone number is missing in userData.");
+      if (!userData?.phoneNumber || !verifyUserToken()) {
+        setOrdersData([]);
         return;
       }
 
+      console.log("Fetching orders for user:", userData.phoneNumber);
       setIsLoading(true);
+      
       try {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          `https://b2c-backend-1.onrender.com/api/v1/order/order?phoneNumber=${userData.phoneNumber}`,
+          `https://b2c-backend-1.onrender.com/api/v1/order/order`,
           {
             method: "GET",
             headers: {
@@ -96,41 +72,99 @@ const Orders = () => {
           throw new Error(`${response.status}`);
         }
 
+        if (!verifyUserToken()) {
+          return;
+        }
+
         const data = await response.json();
+        console.log("Raw API response:", data);
 
         if (data && Array.isArray(data.orders)) {
-          // Load cancelled status from localStorage
           const cancelledOrders = JSON.parse(
             localStorage.getItem("cancelledOrders") || "{}"
           );
-          const ordersWithCancelStatus = data.orders.map((order) => ({
+
+          // Filter orders by phone number before setting state
+          const filteredOrders = filterOrdersByPhoneNumber(data.orders, userData.phoneNumber);
+          console.log("Filtered orders:", filteredOrders);
+
+          const ordersWithCancelStatus = filteredOrders.map((order) => ({
             ...order,
             status: cancelledOrders[order.id] ? "canceled" : order.status,
           }));
+          
           setOrdersData(ordersWithCancelStatus);
         } else {
-          throw new Error("Invalid data format received");
+          console.log("No orders array in response");
+          setOrdersData([]);
         }
       } catch (err) {
         setError(err.message);
         console.error("Error fetching orders:", err);
+        setOrdersData([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (userData?.phoneNumber) {
-      fetchOrders();
+    fetchOrders();
+  }, [userData, userToken]);
+
+  // Rest of your component code remains the same...
+  const canCancelOrder = (orderTimestamp) => {
+    if (!orderTimestamp?._seconds) return false;
+    const orderTime = new Date(orderTimestamp._seconds * 1000);
+    const currentTime = new Date();
+    const diffInMinutes = (currentTime - orderTime) / 1000 / 60;
+    return diffInMinutes <= 8;
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token || !verifyUserToken()) {
+        toast.error("Please log in again");
+        return;
+      }
+
+      const response = await fetch(
+        `https://b2c-backend-1.onrender.com/api/v1/order/order/${orderId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to cancel order");
+      }
+
+      setOrdersData((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === orderId ? { ...order, status: "canceled" } : order
+        )
+      );
+
+      const cancelledOrders = JSON.parse(
+        localStorage.getItem("cancelledOrders") || "{}"
+      );
+      cancelledOrders[orderId] = true;
+      localStorage.setItem("cancelledOrders", JSON.stringify(cancelledOrders));
+
+      toast.success("Order cancelled successfully");
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      toast.error("Failed to cancel order");
     }
-  }, [userData]);
+  };
 
-  // adding new useffect
   useEffect(() => {
-    // Clear any existing timers
     Object.values(timersRef.current).forEach(clearTimeout);
-    timersRef.current = {}; // Reset the timers object
+    timersRef.current = {};
 
-    const newCancelButtonVisible = {}; // Create a new object
+    const newCancelButtonVisible = {};
 
     ordersData.forEach((order) => {
       if (canCancelOrder(order.createdAt)) {
@@ -142,19 +176,16 @@ const Orders = () => {
       }
     });
 
-    setCancelButtonVisible(newCancelButtonVisible); // Update state in one go
+    setCancelButtonVisible(newCancelButtonVisible);
 
     return () => {
-      Object.values(timersRef.current).forEach(clearTimeout); // Clear timers on unmount
+      Object.values(timersRef.current).forEach(clearTimeout);
     };
   }, [ordersData]);
 
-
   const getImageByName = (name) => {
-    if (name === undefined || name === null) {
-      // Check for undefined or null
-      console.warn("Product name is undefined or null. Using default image.");
-      return egg6; // Or another appropriate default image
+    if (!name) {
+      return egg6;
     }
 
     switch (name.toLowerCase()) {
@@ -168,7 +199,6 @@ const Orders = () => {
       case "e30":
         return egg30;
       default:
-        console.warn(`Image not found for product: ${name}`);
         return egg6;
     }
   };
@@ -191,8 +221,8 @@ const Orders = () => {
 
   const mapOrderItems = (products) => {
     return Object.values(products).map((product) => ({
-      name: product.name,
-      quantity: product.quantity,
+      name: product.name || product.productId,
+      quantity: product.quantity || 1,
       productId: product.productId,
     }));
   };
@@ -209,7 +239,7 @@ const Orders = () => {
   };
 
   if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>No orders found for you !</p>;
+  if (error) return <p>Error loading orders. Please try again.</p>;
 
   const sortedOrders = [...ordersData].sort(
     (a, b) => (b.createdAt._seconds || 0) - (a.createdAt._seconds || 0)
@@ -217,8 +247,10 @@ const Orders = () => {
 
   return (
     <div className="h-3/4 lg:h-2/3 overflow-y-auto bg-gray-100 rounded-lg">
-      {sortedOrders.length === 0 ? (
-        <p className="text-black text-center text-lg">No orders done</p>
+      {!userData?.phoneNumber ? (
+        <p className="text-black text-center text-lg">Please log in to view orders</p>
+      ) : sortedOrders.length === 0 ? (
+        <p className="text-black text-center text-lg">No orders found</p>
       ) : (
         <div className="space-y-4 m-4">
           {sortedOrders.map((order) => (
@@ -232,7 +264,7 @@ const Orders = () => {
                     {mapOrderItems(order.products).map((item, i) => (
                       <div key={i} className="relative">
                         <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-                          {item.quantity || 1}
+                          {item.quantity}
                         </span>
                         <img
                           src={getImageByName(item.name)}
@@ -260,7 +292,7 @@ const Orders = () => {
                       Order Cancelled
                     </div>
                   ) : cancelButtonVisible[order.id] &&
-                    canCancelOrder(order.createdAt) ? ( // Check visibility and order status
+                    canCancelOrder(order.createdAt) ? (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -272,7 +304,15 @@ const Orders = () => {
                     </button>
                   ) : (
                     <div>
-                      {order.status === "delivered" ? (<div className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md">Delivered</div>) :(<div className="mt-2 px-3 py-1 bg-yellow-500 text-white rounded-md">Pending</div>) }
+                      {order.status === "delivered" ? (
+                        <div className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md">
+                          Delivered
+                        </div>
+                      ) : (
+                        <div className="mt-2 px-3 py-1 bg-yellow-500 text-white rounded-md">
+                          Pending
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
