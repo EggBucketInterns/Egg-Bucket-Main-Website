@@ -159,11 +159,54 @@ const Timeline = () => {
               "Kacklewalls Nutrition Private Limited files its provisional Annual Returns and Financial Statements.",
           },
           {
-            year: "March 2024 - Present",
+            year: "March 2024",
             goal: "Continued Expansion",
             contents:
               "Egg Bucket is committed to capturing more cities and delivering top-quality products to its customers across the region.",
           },
+          {
+            "year": "15th March 2024",
+            "goal": "Customer Feedback Program",
+            "contents": "Launches a customer feedback program to improve service and product quality."
+          },
+          {
+            "year": "April 2024",
+            "goal": "Retail Expansion",
+            "contents": "EggBucket launches its retail chain model by opening the first retail outlet."
+          },
+          {
+            "year": "June 2024",
+            "goal": "Operational Efficiency",
+            "contents": "Deploys a 2-wheeler fleet for operational efficiency."
+          },
+          {
+            "year": "September 2024",
+            "goal": "Market Expansion",
+            "contents": "Second retail outlet opens & expands operations to Chennai, fulfilling the first order from the city."
+          },
+          {
+            "year": "December 2024",
+            "goal": "Sustainability Initiatives",
+            "contents": "Begins adopting green technology and initiates electric vehicle operations."
+          },
+          {
+            "year": "February 2025",
+            "goal": "Risk Management",
+            "contents": "Establishes a Damage Control Associate to enhance risk management and operational stability."
+          },
+          {
+            "year": "2025",
+            "goal": "Market Growth",
+            "contents": "Aim to capture 20% of the egg market in Bangalore, achieving sales of 10 lakh eggs per day."
+          },
+          {
+            "year": "2030",
+            "goal": "Industry Leadership",
+            "contents": "Become a leading brand in the Indian egg market with significant market share and diversified egg products."
+          }
+        
+
+
         ].map((item, index) => (
           <div
             key={index}
