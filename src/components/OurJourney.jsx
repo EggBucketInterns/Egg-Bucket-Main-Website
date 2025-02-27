@@ -30,26 +30,30 @@ const Timeline = () => {
       }
     });
   };
+const handleScroll = () => {
+  callbackFunc();
 
-  const handleScroll = () => {
-    callbackFunc();
+  if (!eggScroller.current || !timelineContainer.current) return;
 
-    // For egg scroller animation
-    const scrollPosition = window.scrollY;
-    const containerHeight = timelineContainer.current.offsetHeight;
-    const windowHeight = window.innerHeight;
-    const maxScrollTop = containerHeight - windowHeight;
-    const slowFactor = 0.25;
-    const eggScrollHeight = containerHeight - 200; // Adjust to control where the egg should stop
+  const scrollPosition = window.scrollY;
+  const containerHeight = timelineContainer.current.offsetHeight;
+  const windowHeight = window.innerHeight;
 
-    if (eggScroller.current) {
-      const scrollFactor =
-        Math.min(scrollPosition / maxScrollTop, 1) * slowFactor;
-      eggScroller.current.style.transform = `translateY(${
-        scrollFactor * eggScrollHeight
-      }px)`;
-    }
-  };
+  // Ensure maxScrollTop has a minimum value to prevent divide-by-zero issues
+  const maxScrollTop = Math.max(containerHeight - windowHeight+3000, 1); 
+
+  // Increase eggScrollHeight so the egg moves through the full timeline
+  const eggScrollHeight = containerHeight ; // Increased movement range
+
+  const slowFactor = 0.3; // You can tweak this for better scrolling effect
+
+  const scrollFactor = Math.min(scrollPosition / maxScrollTop, 1) * slowFactor;
+
+  eggScroller.current.style.transform = `translateY(${
+    scrollFactor * eggScrollHeight
+  }px)`;
+};
+
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
