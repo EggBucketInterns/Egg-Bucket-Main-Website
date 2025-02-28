@@ -195,10 +195,13 @@ const Timeline = () => {
       ></div>
       <div className="absolute top-10 left-1/2 w-1 h-full bg-white-600 transform -translate-x-1/2 z-0"></div>
       <div
-        ref={eggScroller}
-        className="egg-scroller hidden md:block fixed top-20 left-1/2 w-20 h-20 bg-cover bg-center z-0 transform -translate-x-1/2"
-        style={{ backgroundImage: `url(${eggImage})` }}
-      ></div>
+  ref={eggScroller}
+  className="egg-scroller hidden md:block fixed top-20 left-[calc(50%-2cm)] w-32 h-32 bg-cover bg-center z-0"
+  style={{ backgroundImage: `url(${eggImage})` }}
+></div>
+
+
+
       <div
         ref={timelineContainer}
         className="timeline-container flex flex-col items-center relative pt-12 lg:mx-80 mx-4 pt-20 pb-3 space-y-10"
