@@ -220,41 +220,42 @@ const Navbar = () => {
 
             {/* About Us Mobile with Dropdown */}
             <li>
-  <button
-    onClick={toggleAboutMenu}
-    className="text-gray-600 hover:text-gray-800 transition-transform transform hover:scale-105 flex justify-between items-center w-full"
-  >
-    About Us
-    <FaChevronDown
-      className={`ml-2 transition-transform ${aboutOpen ? "rotate-180" : ""}`}
-    />
-  </button>
+              <button
+                onClick={toggleAboutMenu}
+                className="text-gray-600 hover:text-gray-800 transition-transform transform hover:scale-105 flex justify-between items-center w-full"
+              >
+                About Us
+                <FaChevronDown
+                  className={`ml-2 transition-transform ${
+                    aboutOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
 
-  {/* About Us submenu for mobile */}
-  {aboutOpen && (
-    <ul className="mt-2 pl-4 space-y-2 block md:hidden">
-      <li>
-        <Link
-          to="/ourfounders"
-          className="text-gray-600 hover:text-gray-800"
-          onClick={handleMobileNavigation}
-        >
-          Meet the Visionaries
-        </Link>
-      </li>
-      <li>
-        <Link
-          to="/timeline"
-          className="text-gray-600 hover:text-gray-800"
-          onClick={handleMobileNavigation}
-        >
-          Our Journey So Far
-        </Link>
-      </li>
-    </ul>
-  )}
-</li>
-
+              {/* About Us submenu for mobile */}
+              {aboutOpen && (
+                <ul className="mt-2 pl-4 space-y-2">
+                  <li>
+                    <Link
+                      to="/ourfounders"
+                      className="text-gray-600 hover:text-gray-800 transition-transform transform hover:scale-105"
+                      onClick={toggleMenu}
+                    >
+                      Meet the Visionaries
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/timeline"
+                      className="text-gray-600 hover:text-gray-800 transition-transform transform hover:scale-105"
+                      onClick={toggleMenu}
+                    >
+                      Our Journey So Far
+                    </Link>
+                  </li>
+                </ul>
+              )}
+            </li>
 
             <li>
               <Link
