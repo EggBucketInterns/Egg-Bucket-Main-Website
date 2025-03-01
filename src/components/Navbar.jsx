@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaTimes, FaBars, FaChevronDown } from "react-icons/fa";
 import { MdShoppingCart } from "react-icons/md"; // Importing a shopping cart icon
 import logo from "../assets/Images/logo-egg-png.png";
@@ -8,6 +8,20 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false); // State for About Us submenu
+  const aboutRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (aboutRef.current && !aboutRef.current.contains(event.target)) {
+        setAboutOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [aboutRef]);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -88,7 +102,7 @@ const Navbar = () => {
 
               {/* Submenu */}
               {aboutOpen && (
-                <ul className="absolute bg-white rounded-xl w-72 text-gray-800 shadow-lg mt-2 py-4 px-6">
+                <ul ref={aboutRef} className="absolute  bg-white rounded-xl w-72 text-gray-800 shadow-lg mt-2 py-4 px-6">
                   <li>
                     <Link
                       to="/ourfounders"
@@ -204,7 +218,7 @@ const Navbar = () => {
                   <li>
                     <Link
                       to="/ourfounders"
-                      className="text-gray-600 hover:text-gray-800 transition-transform transform hover:scale-105"
+                      className="text-gray-600 relative block group hover:text-gray-800 transition-transform transform hover:scale-105"
                       onClick={toggleMenu}
                     >
                       Meet the Visionaries
@@ -213,7 +227,7 @@ const Navbar = () => {
                   <li>
                     <Link
                       to="/timeline"
-                      className="text-gray-600 hover:text-gray-800 transition-transform transform hover:scale-105"
+                      className="text-gray-600 relative block group hover:text-gray-800 transition-transform transform hover:scale-105"
                       onClick={toggleMenu}
                     >
                       Our Journey So Far
