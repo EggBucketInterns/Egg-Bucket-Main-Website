@@ -184,24 +184,30 @@ const Orders = () => {
   }, [ordersData]);
 
   const getImageByName = (name) => {
-    if (!name) {
-      return egg6;
-    }
+  if (!name) {
+    return egg6;
+  }
 
-    switch (name.toLowerCase()) {
-      case "6pc_tray":
-      case "e6":
-        return egg6;
-      case "12pc_tray":
-      case "e12":
-        return egg12;
-      case "30pc_tray":
-      case "e30":
-        return egg30;
-      default:
-        return egg6;
-    }
-  };
+  // Clean up the name by removing any trailing numbers and converting to lowercase
+  const cleanName = name.replace(/\d+$/, '').toLowerCase();
+
+  switch (cleanName) {
+    case "6pc_tray":
+    case "e6":
+    case "0xkt5npngubazmmpzgs": // product ID in lowercase
+      return egg6;
+    case "12pc_tray":
+    case "e12":
+    case "nvpdbcfymcyd7kph6j5j": // product ID in lowercase
+      return egg12;
+    case "30pc_tray":
+    case "e30":
+    case "a2meuuacwegqnbic4l51": // product ID in lowercase
+      return egg30;
+    default:
+      return egg6;
+  }
+};
 
   const formatDate = (timestamp) => {
     if (!timestamp?._seconds) return "Invalid date";
@@ -220,11 +226,40 @@ const Orders = () => {
   };
 
   const mapOrderItems = (products) => {
-    return Object.values(products).map((product) => ({
-      name: product.name || product.productId,
-      quantity: product.quantity || 1,
-      productId: product.productId,
-    }));
+    if (!products) return [];
+  
+    return Object.entries(products).map(([productId, value]) => {
+      // Case 1: Mobile format where value is just a number (quantity)
+      if (typeof value === 'number') {
+        let name = '';
+        // Map product IDs to names
+        if (productId === '0Xkt5nPNGubaZ9mMpzGs') name = '6pc_tray';
+        else if (productId === 'NVPDbCfymcyD7KpH6J5J') name = '12pc_tray';
+        else if (productId === 'a2MeuuaCweGQNBIc4l51') name = '30pc_tray';
+        
+        return {
+          name: name,
+          quantity: value,
+          productId: productId
+        };
+      }
+      
+      // Case 2: Web format where value is an object with properties
+      if (typeof value === 'object' && value !== null) {
+        return {
+          name: value.name || '',
+          quantity: value.quantity || 1,
+          productId: value.productId || productId
+        };
+      }
+  
+      // Default case
+      return {
+        name: '6pc_tray',
+        quantity: 1,
+        productId: productId
+      };
+    });
   };
 
   const extractOrderId = (docId) => {
