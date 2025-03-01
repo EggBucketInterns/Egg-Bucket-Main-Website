@@ -8,15 +8,17 @@ import axios from "axios";
 const Cart = ({ toggleCart }) => {
   const cartItems = useSelector((state) => state.localStorage.items);
   const dispatch = useDispatch();
+
   const { userData } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
-  const [addresses, setAddresses] = useState([]);
-  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [addresses, setAddresses] = useState([]); // Stores address data from API
+  const [selectedAddress, setSelectedAddress] = useState(); // Initialize with null
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [showSelectAlert, setShowSelectAlert] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [localQuantities, setLocalQuantities] = useState({});
+  const [isLoading, setIsLoading] = useState(false); // Loading state
   const [userToken, setUserToken] = useState(null);
 
   useEffect(() => {
@@ -24,67 +26,32 @@ const Cart = ({ toggleCart }) => {
     setUserToken(token);
   }, []);
 
-  // Helper function to filter orders by phone number
-  const filterOrdersByPhoneNumber = (orders, phoneNumber) => {
-    if (!phoneNumber || !Array.isArray(orders)) return [];
-
-    return orders.filter((order) => {
-      const orderId = order.id || "";
-      return orderId.split("-")[0] === phoneNumber;
-    });
-  };
-
-  // Extract unique addresses from orders
-  const extractUniqueAddresses = (orders) => {
-    const uniqueAddresses = new Map();
-
-    orders.forEach((order) => {
-      if (order.address?.fullAddress) {
-        const addressKey = JSON.stringify(order.address.fullAddress);
-        if (!uniqueAddresses.has(addressKey)) {
-          uniqueAddresses.set(addressKey, order.address);
-        }
-      }
-    });
-
-    return Array.from(uniqueAddresses.values());
-  };
-
-  // Fetch addresses from orders
   useEffect(() => {
+    // Fetch address data from API
     const fetchAddresses = async () => {
-      if (!userToken || !userData?.phoneNumber) return;
-
       try {
         const response = await fetch(
-          "https://b2c-backend-1.onrender.com/api/v1/order/order",
-          {
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-            },
-          }
+          "https://b2c-backend-1.onrender.com/api/v1/order/order"
         );
-
-        if (!response.ok) throw new Error("Failed to fetch orders");
-
         const data = await response.json();
 
-        if (data && Array.isArray(data.orders)) {
-          // Filter orders by phone number
-          const userOrders = filterOrdersByPhoneNumber(
-            data.orders,
-            userData.phoneNumber
-          );
+        console.log("Fetched addresses:", data); // Check the response format
 
-          // Extract unique addresses
-          const uniqueAddresses = extractUniqueAddresses(userOrders);
+        // Check if orders exist and extract the address information
+        if (data.orders && Array.isArray(data.orders)) {
 
-          setAddresses(uniqueAddresses);
+          const orderAddresses = data.orders
+            .map((order) => order?.address?.fullAddress) // Safely access fullAddress
+            .filter(Boolean); // Remove undefined or null items
+          setAddresses(orderAddresses); // Store only valid addresses
 
-          // Set first address as selected if none is selected
-          if (!selectedAddress && uniqueAddresses.length > 0) {
-            setSelectedAddress(uniqueAddresses[0]);
-          }
+        } else {
+          console.error("No valid order data found");
+        }
+
+        // Pre-select the first address if available
+        if (data.orders && data.orders.length > 0) {
+          setSelectedAddress(data.orders[0].address.fullAddress);
         }
       } catch (error) {
         console.error("Failed to fetch addresses:", error);
@@ -92,21 +59,26 @@ const Cart = ({ toggleCart }) => {
     };
 
     fetchAddresses();
-  }, [userToken, userData?.phoneNumber]);
+  }, []);
 
-  // Format address for display
-  const formatAddress = (address) => {
-    if (!address?.fullAddress) return "Select Address";
-
-    const { flatNo, area, city, state, zipCode, country } = address.fullAddress;
-    return `${flatNo}, ${area}, ${city}, ${state}, ${zipCode}, ${country}`;
+  const handleIncrement = (item) => {
+    dispatch(addItem(item));
   };
 
-  // Rest of your existing Cart component code...
-  const handleSelectAddress = (address) => {
-    setSelectedAddress(address);
-    setIsDropdownOpen(false);
-    setShowSelectAlert(false);
+  const handleDecrement = (itemId) => {
+    const item = cartItems.find((item) => item.id === itemId);
+    if (item.quantity > 1) {
+      dispatch(decrementItem(itemId));
+    } else {
+      dispatch(removeItem(itemId));
+    }
+  };
+
+  const clearCart = () => {
+    cartItems.forEach((item) => {
+      dispatch(removeItem(item.id)); // Dispatch remove action for each item
+    });
+    setLocalQuantities({}); // Reset local quantities
   };
 
   const handlePlaceOrder = async () => {
@@ -115,57 +87,58 @@ const Cart = ({ toggleCart }) => {
       return;
     }
 
-    if (!userData?.phoneNumber) {
-      console.error("No customer data found");
+    const customer = userData;
+    if (!customer) {
+      console.error("No customer data found in Redux");
       return;
     }
 
-    try {
-      setIsLoading(true);
-
-      const products = cartItems.reduce((acc, item) => {
-        let backendId;
-        switch (item.id) {
-          case 1:
-            backendId = "E30";
-            break;
-          case 2:
-            backendId = "E6";
-            break;
-          case 3:
-            backendId = "E12";
-            break;
-          default:
-            backendId = item.id.toString();
-        }
-
-        acc[backendId] = item.quantity;
-        return acc;
-      }, {});
-
-      const orderPayload = {
-        address: selectedAddress,
-        amount: totalPrice,
-        products,
-        customerId: userData.phoneNumber,
+    const products = cartItems.reduce((acc, item) => {
+      let mappedId;
+      if (item.id === 1) {
+        mappedId = "E30";
+      } else if (item.id === 2) {
+        mappedId = "E6";
+      } else if (item.id === 3) {
+        mappedId = "E12";
+      } else {
+        mappedId = item.id; // Use item.id if no mapping exists
+      }
+      acc[mappedId] = {
+        productId: mappedId,
+        name: item.name,
+        quantity: localQuantities[item.id],
       };
+      return acc;
+    }, {});
 
+    const orderPayload = {
+      address: selectedAddress,
+      amount: totalPrice,
+      products,
+      customerId: customer.phoneNumber,
+    };
+
+    try {
+      setIsLoading(true); // Start loading
       const response = await axios.post(
         "https://b2c-backend-1.onrender.com/api/v1/order/order",
         orderPayload,
-        { validateStatus: () => true }
+        { validateStatus: () => true } // Avoid throwing errors for HTTP status codes
       );
 
       if (response.data.status === "success") {
         setSuccessMessage("Order placed successfully!");
-        clearCart();
+        clearCart(); // Clear cart on success
       } else if (
         response.data.status === "fail" &&
         response.data.message ===
           "No nearby outlets, we will soon expand here!!"
       ) {
-        setSuccessMessage(response.data.message);
-        setTimeout(() => setSuccessMessage(""), 3000);
+        setSuccessMessage(response.data.message); // Show failure message
+        setTimeout(() => {
+          setSuccessMessage(""); // Clear message after 5 seconds
+        }, 3000); // Show failure message for 5 seconds
       } else {
         setSuccessMessage("Failed to place order. Please try again.");
       }
@@ -173,9 +146,29 @@ const Cart = ({ toggleCart }) => {
       console.error("Error placing order:", error);
       setSuccessMessage("Failed to place order. Please try again.");
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // End loading
     }
   };
+
+
+
+  useEffect(() => {
+    // Update localQuantities when cartItems change
+    const newLocalQuantities = cartItems.reduce((acc, item) => {
+      acc[item.id] = item.quantity;
+      return acc;
+    }, {});
+    setLocalQuantities(newLocalQuantities);
+  }, [cartItems]);
+
+  const subtotal = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
+
+
+  const shipping = 50; // Flat shipping rate
+  const totalPrice = subtotal + shipping;
 
   return (
     <div className="fixed right-0 top-0 w-96 h-full bg-white shadow-lg p-4 z-50">
@@ -193,8 +186,11 @@ const Cart = ({ toggleCart }) => {
       ) : (
         <>
           <ul className="space-y-4">
-            {cartItems.map((item) => (
-              <li key={item.id} className="flex justify-between items-center">
+            {cartItems.map((item, index) => (
+              <li
+                key={item.id || index}
+                className="flex justify-between items-center"
+              >
                 <div className="flex items-center">
                   <img
                     src={item.image}
@@ -204,7 +200,8 @@ const Cart = ({ toggleCart }) => {
                   <div>
                     <h3 className="font-semibold">{item.name}</h3>
                     <p>
-                      ₹{item.price.toFixed(2)} x {item.quantity}
+                      ₹{item.price ? item.price.toFixed(2) : "0.00"} x{" "}
+                      {item.quantity}
                     </p>
                   </div>
                 </div>
@@ -248,27 +245,33 @@ const Cart = ({ toggleCart }) => {
             </div>
           </div>
 
+          {/* Address Selection */}
           {userToken ? (
             <div className="relative mt-4">
               <div
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex justify-between items-center cursor-pointer border p-2 rounded-md"
               >
-                <span className="truncate">
-                  {formatAddress(selectedAddress)}
+                <span>
+                  {selectedAddress?.fullAddress
+                    ? `${selectedAddress.fullAddress.flatNo}, ${selectedAddress.fullAddress.area}, ${selectedAddress.fullAddress.city}, ${selectedAddress.fullAddress.state}`
+                    : "Select Address"}
                 </span>
+
                 <FiChevronDown />
               </div>
-
               {isDropdownOpen && (
                 <ul className="absolute bg-white border rounded-md shadow-lg mt-1 w-full z-30 max-h-80 overflow-y-auto">
-                  {addresses.map((address, index) => (
+                  {userData?.addresses?.map((address, index) => (
                     <li
                       key={index}
-                      onClick={() => handleSelectAddress(address)}
-                      className="p-2 cursor-pointer hover:bg-orange-200 truncate"
+                      onClick={() => {
+                        setSelectedAddress(address);
+                        setIsDropdownOpen(false);
+                      }}
+                      className="p-2 cursor-pointer hover:bg-orange-200"
                     >
-                      {formatAddress(address)}
+                      {`${address.fullAddress.flatNo}, ${address.fullAddress.area}, ${address.fullAddress.city}, ${address.fullAddress.state}, ${address.fullAddress.country}-${address.fullAddress.zipCode}`}
                     </li>
                   ))}
                 </ul>
@@ -284,20 +287,17 @@ const Cart = ({ toggleCart }) => {
             {userToken ? (
               <button
                 onClick={handlePlaceOrder}
-                className={`w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 ${
-                  isLoading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                disabled={isLoading}
+                className="bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600"
               >
-                {isLoading ? "Placing Order..." : "Place Order"}
+                Place Order
               </button>
             ) : (
               <button
                 onClick={() => {
                   toggleCart();
                   navigate("/order/login");
-                }}
-                className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+                }} // Adjust the path based on your routing setup
+                className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
               >
                 Login
               </button>
