@@ -1,37 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { FaTimes, FaBars, FaChevronDown } from "react-icons/fa";
 import { MdShoppingCart } from "react-icons/md"; // Importing a shopping cart icon
 import logo from "../assets/Images/logo-egg-png.png";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts } from "../redux/productsSlice";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false); // State for About Us submenu
-  const menuRef = useRef(null);
-  const aboutRef = useRef(null);
-
-  const dispatch = useDispatch();
-
-  const {products:reduxProducts,loading,error} = useSelector((state)=>state.products);
-
-  const handleClickOutside = (event) => {
-    if (menuRef.current && !menuRef.current.contains(event.target)) {
-      setIsOpen(false);
-    }
-    if (aboutRef.current && !aboutRef.current.contains(event.target)) {
-      setAboutOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -55,12 +31,6 @@ const Navbar = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
-  const handleMouseEnter = () => {
-    dispatch(fetchProducts());
-
-    localStorage.setItem("fetchProducts", JSON.stringify(reduxProducts));
-  };
 
   return (
     <nav
@@ -100,7 +70,7 @@ const Navbar = () => {
             </li>
 
             {/* About Us with Submenu for Desktop */}
-            <li className="relative" ref={aboutRef}>
+            <li className="relative">
               <button
                 onClick={toggleAboutMenu}
                 className="relative px-3 py-2 text-gray-600 group flex items-center"
@@ -177,11 +147,7 @@ const Navbar = () => {
             </li>
           </ul>
 
-          <Link
-            to="/order"
-            className="hidden md:inline-block"
-            onMouseEnter={handleMouseEnter}
-          >
+          <Link to="/order" className="hidden md:inline-block">
             <button className="bg-gradient-to-r from-[#f87709] to-[#f88a12] text-white px-8 py-3 rounded-full shadow-lg transition-transform transform hover:scale-105 flex items-center space-x-2">
               <span>Order Now</span>
               <MdShoppingCart className="w-6 h-6" />
