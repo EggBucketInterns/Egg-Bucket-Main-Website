@@ -23,6 +23,8 @@ import Login from "./components/Login";
 import CareerDreamJob from "./pages/CareerDreamJob";
 import {ToastContainer} from 'react-toastify'
 import { Toaster } from 'react-hot-toast';
+import EngineeringOpportunities from "./pages/EngineeringOpportunities";
+import MBAOpportunities from "./pages/MBAOpportunities";
 
 
 
@@ -58,6 +60,8 @@ const App = () => {
         <Route path="/contact-us" element={<ContactUsPage />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/careers/dreamjob" element={<CareerDreamJob />} />
+        <Route path="/careers/dreamjob/EngineeringOpportunities" element={<EngineeringOpportunities />} />
+        <Route path="/careers/dreamjob/MBAOpportunities" element={<MBAOpportunities />} />
         <Route path="/timeline" element={<Time />} />
         <Route path="/ourfounders" element={<Ourfounders />} />
         <Route path="/faq" element={<FAQ />} />
