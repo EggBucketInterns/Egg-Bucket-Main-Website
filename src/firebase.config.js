@@ -1,33 +1,18 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from "firebase/firestore"; 
+import { getFirestore } from "firebase/firestore";
 
-
-
-// const firebaseConfig = {
-//   apiKey: "AIzaSyCA3LHBnhpgI9UstaaewiqSZeVKx4AsSPI",
-//   authDomain: "b2c-main.firebaseapp.com",
-//   projectId: "b2c-main",
-//   storageBucket: "b2c-main.appspot.com",
-//   messagingSenderId: "644465249792",
-//   appId: "1:644465249792:web:4d64b23d65d401fbd292e5",
-//   measurementId: "G-SBL116DGDY"
-// };
 const firebaseConfig = {
-  apiKey: "AIzaSyCA3LHBnhpgI9UstaaewiqSZeVKx4AsSPI",
-  authDomain: "b2c-main.firebaseapp.com",
-  projectId: "b2c-main",
-  storageBucket: "b2c-main.appspot.com",
-  messagingSenderId: "644465249792",
-  appId: "1:644465249792:web:4d64b23d65d401fbd292e5",
-  measurementId: "G-SBL116DGDY"
+  apiKey: import.meta.env.VITE_apiKey,
+  authDomain: import.meta.env.VITE_authDomain,
+  projectId: import.meta.env.VITE_projectId,
+  storageBucket: import.meta.env.VITE_storageBucket,
+  messagingSenderId: import.meta.env.VITE_messagingSenderId,
+  appId: import.meta.env.VITE_appId,
+  measurementId: import.meta.env.VITE_measurementId,
 };
-
 
 const app = initializeApp(firebaseConfig);
 
-export const  auth = getAuth(app);
-
-export const db = getFirestore(app); 
-
-
+export const auth = getAuth(app);
+export const db = getFirestore(app);
