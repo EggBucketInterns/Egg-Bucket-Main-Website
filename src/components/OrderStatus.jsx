@@ -110,7 +110,6 @@ const Orders = () => {
     fetchOrders();
   }, [userData, userToken]);
 
-  // Rest of your component code remains the same...
   const canCancelOrder = (orderTimestamp) => {
     if (!orderTimestamp?._seconds) return false;
     const orderTime = new Date(orderTimestamp._seconds * 1000);
@@ -184,30 +183,30 @@ const Orders = () => {
   }, [ordersData]);
 
   const getImageByName = (name) => {
-  if (!name) {
-    return egg6;
-  }
-
-  // Clean up the name by removing any trailing numbers and converting to lowercase
-  const cleanName = name.replace(/\d+$/, '').toLowerCase();
-
-  switch (cleanName) {
-    case "6pc_tray":
-    case "e6":
-    case "0xkt5npngubazmmpzgs": // product ID in lowercase
+    if (!name) {
       return egg6;
-    case "12pc_tray":
-    case "e12":
-    case "nvpdbcfymcyd7kph6j5j": // product ID in lowercase
-      return egg12;
-    case "30pc_tray":
-    case "e30":
-    case "a2meuuacwegqnbic4l51": // product ID in lowercase
-      return egg30;
-    default:
-      return egg6;
-  }
-};
+    }
+
+    // Clean up the name by removing any trailing numbers and converting to lowercase
+    const cleanName = name.replace(/\d+$/, '').toLowerCase();
+
+    switch (cleanName) {
+      case "6pc_tray":
+      case "e6":
+      case "0xkt5npngubazmmpzgs": // product ID in lowercase
+        return egg6;
+      case "12pc_tray":
+      case "e12":
+      case "nvpdbcfymcyd7kph6j5j": // product ID in lowercase
+        return egg12;
+      case "30pc_tray":
+      case "e30":
+      case "a2meuuacwegqnbic4l51": // product ID in lowercase
+        return egg30;
+      default:
+        return egg6;
+    }
+  };
 
   const formatDate = (timestamp) => {
     if (!timestamp?._seconds) return "Invalid date";
@@ -223,6 +222,17 @@ const Orders = () => {
         hour12: true,
       })
       .replace(" at", ",");
+  };
+
+  // Format price to show a rounded figure
+  const formatPrice = (price) => {
+    if (!price && price !== 0) return "₹0";
+    
+    // Convert to number if it's a string
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    
+    // Round to 0 decimal places and format with the ₹ symbol
+    return `₹${Math.round(numPrice)}`;
   };
 
   const mapOrderItems = (products) => {
@@ -273,125 +283,218 @@ const Orders = () => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
   };
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error loading orders. Please try again.</p>;
+  // Function to render status badge with improved styling
+  const renderStatusBadge = (status) => {
+    let badgeClass = "";
+    let statusText = "";
+
+    const statusLower = status.toLowerCase();
+
+    switch (status) {
+      case "canceled":
+        badgeClass = "bg-red-100 text-red-800 border border-red-200";
+        statusText = "Cancelled";
+        break;
+      case "delivered":
+        badgeClass = "bg-green-100 text-green-800 border border-green-200";
+        statusText = "Delivered";
+        break;
+      default:
+        badgeClass = "bg-yellow-100 text-yellow-800 border border-yellow-200";
+        statusText = "Pending";
+    }
+
+    return (
+      <div className={`px-3 py-1.5 rounded-full text-xs font-medium ${badgeClass} shadow-sm inline-flex items-center justify-center`}>
+      <span className="relative flex w-2 h-2 mr-1.5">
+        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${statusLower === "canceled" ? "bg-red-400" : statusLower === "delivered" ? "bg-green-400" : "bg-yellow-400"} opacity-75`}></span>
+        <span className={`relative inline-flex rounded-full h-2 w-2 ${statusLower === "canceled" ? "bg-red-500" : statusLower === "delivered" ? "bg-green-500" : "bg-yellow-500"}`}></span>
+      </span>
+      {statusText}
+    </div>
+    );
+  };
+
+  // Render cancel button with improved styling
+  const renderCancelButton = (orderId) => {
+    return (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          handleCancelOrder(orderId);
+        }}
+        className="mt-2 px-4 py-1.5 bg-white border border-red-500 text-red-600 rounded-full text-xs font-medium shadow-sm hover:bg-red-50 transition-colors flex items-center justify-center"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+        </svg>
+         Cancel Order
+      </button>
+    );
+  };
+
+  if (isLoading) return (
+    <div className="flex justify-center items-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="bg-red-50 p-4 rounded-lg">
+      <p className="text-red-600 text-center">Error loading orders. Please try again.</p>
+    </div>
+  );
 
   const sortedOrders = [...ordersData].sort(
     (a, b) => (b.createdAt._seconds || 0) - (a.createdAt._seconds || 0)
   );
 
   return (
-    <div className="h-3/4 lg:h-2/3 overflow-y-auto bg-gray-100 rounded-lg">
-      {!userData?.phoneNumber ? (
-        <p className="text-black text-center text-lg">Please log in to view orders</p>
-      ) : sortedOrders.length === 0 ? (
-        <p className="text-black text-center text-lg">No orders found</p>
-      ) : (
-        <div className="space-y-4 m-4">
-          {sortedOrders.map((order) => (
-            <div key={order.id}>
-              <div
-                className="bg-white p-4 shadow-lg flex justify-between items-center cursor-pointer"
-                onClick={() => handleOrderClick(order.id)}
-              >
-                <div className="flex flex-col items-start">
-                  <div className="flex space-x-2">
-                    {mapOrderItems(order.products).map((item, i) => (
-                      <div key={i} className="relative">
-                        <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-                          {item.quantity}
-                        </span>
-                        <img
-                          src={getImageByName(item.name)}
-                          alt={item.name}
-                          className="w-14 h-14 object-cover rounded-md"
-                        />
-                      </div>
-                    ))}
+    <div className="h-full bg-gray-50 rounded-lg overflow-hidden">
+    {!userData?.phoneNumber ? (
+      <div className="flex flex-col items-center justify-center h-64">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        <p className="text-gray-600 text-center text-lg mt-4">Please log in to view orders</p>
+      </div>
+    ) : sortedOrders.length === 0 ? (
+      <div className="flex flex-col items-center justify-center h-64">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+        </svg>
+        <p className="text-gray-600 text-center text-lg mt-4">No orders found</p>
+      </div>
+    ) : (
+      <div className="space-y-4 p-1 md:p-4">
+        {sortedOrders.map((order) => (
+          <div key={order.id} className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+            <div className="p-4">
+              {/* Top section with product images */}
+              <div className="flex mb-4">
+                {mapOrderItems(order.products).map((item, i) => (
+                  <div key={i} className="relative mr-3">
+                    <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+                      {item.quantity}
+                    </span>
+                    <img
+                      src={getImageByName(item.name)}
+                      alt={item.name}
+                      className="w-12 h-12 object-cover rounded-md shadow-sm"
+                    />
                   </div>
-
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      Placed at {formatDate(order.createdAt)}
-                    </p>
-                  </div>
+                ))}
+                
+                {/* Cancel button positioned to the right */}
+                {order.status.toLowerCase() === "canceled" ? (
+  <div className="ml-auto">
+    <div className="px-4 py-2 bg-red-500 text-white rounded-full text-sm font-medium shadow-sm inline-flex items-center justify-center">
+      <span className="mr-1">•</span>
+      Cancelled
+    </div>
+  </div>
+) : order.status.toLowerCase() === "delivered" ? (
+  <div className="ml-auto">
+    <div className="px-4 py-2 bg-green-500 text-white rounded-full text-sm font-medium shadow-sm inline-flex items-center justify-center">
+      <span className="mr-1">•</span>
+      Delivered
+    </div>
+  </div>
+) : cancelButtonVisible[order.id] && canCancelOrder(order.createdAt) ? (
+  <div className="ml-auto">
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        handleCancelOrder(order.id);
+      }}
+      className="px-4 py-2 bg-white border border-red-500 text-red-600 rounded-full text-sm font-medium shadow-sm hover:bg-red-50 transition-colors"
+    >
+      <span className="mr-1 text-red-500">•</span>
+      Cancel Order
+    </button>
+  </div>
+) : (
+  <div className="ml-auto">
+    <div className="px-4 py-2 bg-yellow-100 text-yellow-800 border border-yellow-200 rounded-full text-sm font-medium shadow-sm inline-flex items-center justify-center">
+      <span className="mr-1 text-yellow-500">•</span>
+      Pending
+    </div>
+  </div>
+)}
+              </div>
+              
+              {/* Price and order info section */}
+              <div className="flex flex-col">
+                <div className="flex items-baseline">
+                  <span className="text-xl font-bold text-gray-900">{formatPrice(order.amount)}</span>
+                  <span className="ml-2 text-sm text-gray-500">(Order: {extractOrderId(order.id)})</span>
                 </div>
-
-                <div className="flex flex-col items-end">
-                  <p className="text-lg font-semibold">₹{order.amount}</p>
+                
+                <div className="flex justify-between items-center mt-1">
                   <p className="text-sm text-gray-500">
-                    Order ID: {extractOrderId(order.id)}
+                    Placed at {formatDate(order.createdAt)}
                   </p>
-                  {order.status === "canceled" ? (
-                    <div className="mt-2 px-3 py-1 bg-orange-500 text-white rounded-md">
-                      Order Cancelled
-                    </div>
-                  ) : cancelButtonVisible[order.id] &&
-                    canCancelOrder(order.createdAt) ? (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCancelOrder(order.id);
-                      }}
-                      className="mt-2 px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-                    >
-                      Cancel Order
-                    </button>
-                  ) : (
-                    <div>
-                      {order.status === "delivered" ? (
-                        <div className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md">
-                          Delivered
-                        </div>
-                      ) : (
-                        <div className="mt-2 px-3 py-1 bg-yellow-500 text-white rounded-md">
-                          Pending
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  
+                  {/* Expandable indicator */}
+                  <button 
+                    onClick={() => handleOrderClick(order.id)}
+                    className="p-1 "
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 hover:scale-110 hover:text-orange-400 text-gray-400 transition-transform ${expandedOrderId === order.id ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
                 </div>
               </div>
+            </div>
 
-              <div
-                className={`overflow-hidden transition-max-height duration-500 ease-in-out ${
-                  expandedOrderId === order.id ? "max-h-96" : "max-h-0"
-                }`}
-              >
-                {expandedOrderId === order.id && (
-                  <div className="bg-gray-50 p-4 mt-2 rounded-md shadow-md">
-                    <h3 className="font-semibold text-lg">Order Details</h3>
-                    <p>
-                      <strong>Shipping Address:</strong>{" "}
+            {/* Expanded content */}
+            <div
+              className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                expandedOrderId === order.id ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+              }`}
+            >
+              {expandedOrderId === order.id && (
+                <div className="bg-gray-50 p-4 border-t border-gray-100">
+                  <h3 className="font-medium text-sm text-gray-700 mb-2">Order Details</h3>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-gray-600">
+                      <span className="font-medium text-gray-700">Shipping Address:</span>{" "}
                       {order.address?.fullAddress
                         ? `${order.address.fullAddress.flatNo}, ${order.address.fullAddress.area}, ${order.address.fullAddress.city}, ${order.address.fullAddress.state}, ${order.address.fullAddress.zipCode}, ${order.address.fullAddress.country}`
                         : "No address available"}
                     </p>
-                    <p>
-                      <strong>Status:</strong> {order.status}
-                    </p>
-                    <h4 className="mt-2 font-semibold">Products:</h4>
-                    {mapOrderItems(order.products).map((item, i) => (
-                      <div key={i} className="flex items-center mt-1">
-                        <img
-                          src={getImageByName(item.name)}
-                          alt={item.name}
-                          className="w-10 h-10 object-cover rounded-md"
-                        />
-                        <p className="ml-2">
-                          {item.name.toUpperCase()} - Quantity: {item.quantity}
-                        </p>
-                      </div>
-                    ))}
+                    
+                    <div>
+                      <h4 className="font-medium text-gray-700 mb-1">Products:</h4>
+                      {mapOrderItems(order.products).map((item, i) => (
+                        <div key={i} className="flex items-center py-1">
+                          <img
+                            src={getImageByName(item.name)}
+                            alt={item.name}
+                            className="w-8 h-8 object-cover rounded-md mr-2"
+                          />
+                          <p className="text-gray-600">
+                            {item.name.replace(/_/g, ' ').toUpperCase()} - Qty: {item.quantity}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex">
+                      <h1 className="font-semibold space-x-2">Status</h1>
+                      <span className="ml-1">: </span>
+                      <span className="font-light ml-1">{order.status}</span>
+                    </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+);
 };
 
 export default Orders;

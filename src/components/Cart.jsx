@@ -84,6 +84,9 @@ const Cart = ({ toggleCart }) => {
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
       setShowSelectAlert(true);
+      setTimeout(() => {
+        setShowSelectAlert(false);
+      }, 3000);
       return;
     }
 
@@ -121,6 +124,11 @@ const Cart = ({ toggleCart }) => {
 
     try {
       setIsLoading(true); // Start loading
+      
+      // Clear any previous messages
+      setSuccessMessage("");
+      setShowSelectAlert(false);
+      
       const response = await axios.post(
         "https://b2c-backend-1.onrender.com/api/v1/order/order",
         orderPayload,
@@ -130,6 +138,9 @@ const Cart = ({ toggleCart }) => {
       if (response.data.status === "success") {
         setSuccessMessage("Order placed successfully!");
         clearCart(); // Clear cart on success
+        setTimeout(() => {
+          setSuccessMessage(""); // Clear success message after 5 seconds
+        }, 5000);
       } else if (
         response.data.status === "fail" &&
         response.data.message ===
@@ -138,19 +149,23 @@ const Cart = ({ toggleCart }) => {
         setSuccessMessage(response.data.message); // Show failure message
         setTimeout(() => {
           setSuccessMessage(""); // Clear message after 5 seconds
-        }, 3000); // Show failure message for 5 seconds
+        }, 5000);
       } else {
         setSuccessMessage("Failed to place order. Please try again.");
+        setTimeout(() => {
+          setSuccessMessage(""); // Clear error message after 5 seconds
+        }, 5000);
       }
     } catch (error) {
       console.error("Error placing order:", error);
       setSuccessMessage("Failed to place order. Please try again.");
+      setTimeout(() => {
+        setSuccessMessage(""); // Clear error message after 5 seconds
+      }, 5000);
     } finally {
       setIsLoading(false); // End loading
     }
   };
-
-
 
   useEffect(() => {
     // Update localQuantities when cartItems change
@@ -161,17 +176,34 @@ const Cart = ({ toggleCart }) => {
     setLocalQuantities(newLocalQuantities);
   }, [cartItems]);
 
-  const subtotal = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
+  const subtotal = Math.round(
+    cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
   );
-
 
   const shipping = 50; // Flat shipping rate
   const totalPrice = subtotal + shipping;
 
+  // Loading spinner component
+  const LoadingSpinner = () => (
+    <div className="flex justify-center items-center">
+      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+    </div>
+  );
+
+  // Overlay for when loading
+  const LoadingOverlay = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mb-4"></div>
+        <p className="text-gray-800 font-medium">Processing your order...</p>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="fixed right-0 top-0 w-96 h-full bg-white shadow-lg p-4 z-50">
+    <div className="fixed right-0 top-0 w-96 h-full bg-white shadow-lg p-4 z-50 overflow-y-auto">
+      {isLoading && <LoadingOverlay />}
+      
       <button
         className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
         onClick={toggleCart}
@@ -195,7 +227,7 @@ const Cart = ({ toggleCart }) => {
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-16 h-16 mr-4"
+                    className="w-16 h-16 mr-4 object-cover rounded"
                   />
                   <div>
                     <h3 className="font-semibold">{item.name}</h3>
@@ -207,20 +239,20 @@ const Cart = ({ toggleCart }) => {
                 </div>
                 <div className="flex space-x-2">
                   <button
-                    className="bg-gray-200 px-2 py-1"
+                    className="bg-gray-200 px-2 py-1 rounded"
                     onClick={() => handleDecrement(item.id)}
                   >
                     -
                   </button>
                   <span className="px-2 py-1 font-bold">{item.quantity}</span>
                   <button
-                    className="bg-gray-200 px-2 py-1"
+                    className="bg-gray-200 px-2 py-1 rounded"
                     onClick={() => handleIncrement(item)}
                   >
                     +
                   </button>
                   <button
-                    className="bg-red-500 text-white px-2 py-1"
+                    className="bg-red-500 text-white px-2 py-1 rounded"
                     onClick={() => dispatch(removeItem(item.id))}
                   >
                     Remove
@@ -230,7 +262,7 @@ const Cart = ({ toggleCart }) => {
             ))}
           </ul>
 
-          <div className="mt-4">
+          <div className="mt-4 bg-gray-100 p-4 rounded-md">
             <div className="flex justify-between">
               <p className="font-semibold">Subtotal:</p>
               <p className="font-semibold">₹{subtotal.toFixed(2)}</p>
@@ -239,26 +271,27 @@ const Cart = ({ toggleCart }) => {
               <p className="font-semibold">Shipping:</p>
               <p className="font-semibold">₹{shipping.toFixed(2)}</p>
             </div>
-            <div className="flex justify-between mt-2">
+            <div className="flex justify-between mt-2 border-t pt-2">
               <p className="font-bold">Total:</p>
-              <p className="font-bold">₹{totalPrice.toFixed(2)}</p>
+              <p className="font-bold text-orange-600">₹{totalPrice.toFixed(2)}</p>
             </div>
           </div>
 
           {/* Address Selection */}
           {userToken ? (
             <div className="relative mt-4">
+              <p className="text-sm font-medium mb-1 text-gray-700">Delivery Address</p>
               <div
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex justify-between items-center cursor-pointer border p-2 rounded-md"
+                className="flex justify-between items-center cursor-pointer border p-2 rounded-md hover:border-orange-500 transition-colors"
               >
-                <span>
+                <span className="truncate">
                   {selectedAddress?.fullAddress
                     ? `${selectedAddress.fullAddress.flatNo}, ${selectedAddress.fullAddress.area}, ${selectedAddress.fullAddress.city}, ${selectedAddress.fullAddress.state}`
                     : "Select Address"}
                 </span>
 
-                <FiChevronDown />
+                <FiChevronDown className={`transition-transform duration-200 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
               </div>
               {isDropdownOpen && (
                 <ul className="absolute bg-white border rounded-md shadow-lg mt-1 w-full z-30 max-h-80 overflow-y-auto">
@@ -283,23 +316,33 @@ const Cart = ({ toggleCart }) => {
             </p>
           )}
 
-          <div className="mt-4">
+          <div className="mt-6 flex flex-col gap-2">
             {userToken ? (
               <button
                 onClick={handlePlaceOrder}
-                className="bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600"
+                disabled={isLoading}
+                className={`w-full bg-orange-500 text-white py-3 px-4 rounded-md hover:bg-orange-600 transition-colors flex justify-center items-center ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
               >
-                Place Order
+                {isLoading ? <LoadingSpinner /> : 'Place Order'}
               </button>
             ) : (
               <button
                 onClick={() => {
                   toggleCart();
                   navigate("/order/login");
-                }} // Adjust the path based on your routing setup
-                className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+                }}
+                className="w-full bg-blue-500 text-white py-3 px-4 rounded-md hover:bg-blue-600 transition-colors"
               >
-                Login
+                Login to Continue
+              </button>
+            )}
+            
+            {cartItems.length > 0 && (
+              <button
+                onClick={clearCart}
+                className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors mt-2"
+              >
+                Clear Cart
               </button>
             )}
           </div>
@@ -307,13 +350,19 @@ const Cart = ({ toggleCart }) => {
       )}
 
       {successMessage && (
-        <div className="mt-4 p-2 bg-green-500 text-white rounded-md">
+        <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md flex items-center">
+          <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
           {successMessage}
         </div>
       )}
 
       {showSelectAlert && (
-        <div className="mt-4 p-2 bg-red-500 text-white rounded-md">
+        <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md flex items-center">
+          <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          </svg>
           Please select a delivery address
         </div>
       )}
