@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import bglogo from "../assets/Images/logo.png";
 import {
   AiOutlineShoppingCart,
@@ -27,6 +27,7 @@ const Header = ({ addToCart, removeFromCart }) => {
   
   // Add ref for the address popup
   const addressPopupRef = useRef(null);
+  const navigate = useNavigate();
 
   // Handle click outside
   useEffect(() => {
@@ -103,6 +104,9 @@ const Header = ({ addToCart, removeFromCart }) => {
     toggleAddressPopup();
   };
 
+  // Calculate total cart items
+  const totalCartItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+
   return (
     <>
       {isCartOpen && (
@@ -130,11 +134,18 @@ const Header = ({ addToCart, removeFromCart }) => {
                 onClick={toggleAddressPopup}
                 data-address-toggle
               />
-              <AiOutlineShoppingCart
-                size={25}
-                className="cursor-pointer text-gray-600 hover:text-orange-500 transition-transform transform hover:scale-110"
-                onClick={toggleCart}
-              />
+              <div className="relative">
+                <AiOutlineShoppingCart
+                  size={25}
+                  className="cursor-pointer text-gray-600 hover:text-orange-500 transition-transform transform hover:scale-110"
+                  onClick={toggleCart}
+                />
+                {totalCartItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {totalCartItems}
+                  </span>
+                )}
+              </div>
 
               <Link
                 className="text-gray-600 hover:text-orange-500 text-2xl"
@@ -166,15 +177,15 @@ const Header = ({ addToCart, removeFromCart }) => {
               </span>
               <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1.5 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
             </Link>
-            <Link
-              to="/order"
+            <button
+              onClick={() => navigate(-1)}
               className="relative block px-3 py-2 text-gray-600 group ml-8 text-lg md:text-xl"
             >
               <span className="relative z-10 transition-colors flex group-hover:text-gray-950">
-              <IoMdArrowBack />
+                <IoMdArrowBack />
               </span>
               <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1.5 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
-            </Link>
+            </button>
           </div>
 
           <div className="absolute lg:right-[200px] md:right-[170px]">
@@ -199,7 +210,7 @@ const Header = ({ addToCart, removeFromCart }) => {
             {showAddressPopup && (
               <div 
                 ref={addressPopupRef}
-                className="md:absolute mt-[70px] md:mt-9 w-[300px] md:w-[370px] md:right-[150px] bg-white p-6 rounded-lg shadow-lg z-20"
+                className="md:absolute mt-[70px] md:mt-9 w-[300px] md:w-[370px] md:right-[10px] bg-white p-6 rounded-lg shadow-lg z-20"
               >
                 <h2 className="text-lg md:text-xl font-bold mb-4">
                   Select an Address
@@ -257,18 +268,15 @@ const Header = ({ addToCart, removeFromCart }) => {
 
           <div className="hidden md:flex items-center md:space-x-3 lg:space-x-6 mx-3">
             <div className="relative" onClick={toggleCart}>
-
               <AiOutlineShoppingCart
                 size={25}
                 className="cursor-pointer text-gray-800 hover:text-orange-500 transition-transform transform hover:scale-110"
-                onClick={toggleCart}
               />
-              {cartItems.length > 0 && (
-                <span onClick={toggleCart} className="absolute -top-2 -right-2 hover:scale-105 cursor-pointer bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartItems.reduce((total, item) => total + item.quantity, 0)}
+              {totalCartItems > 0 && (
+                <span className="absolute -top-2 -right-2 hover:scale-105 cursor-pointer bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {totalCartItems}
                 </span>
               )}
-
             </div>
             <Link
               className="text-gray-800 hover:text-orange-500 text-2xl"
