@@ -74,7 +74,7 @@ const Partners = () => {
         </div>
 
         {/* Control buttons */}
-        <div className="mt-8 flex justify-center space-x-4">
+{/*         <div className="mt-8 flex justify-center space-x-4">
           <button
             onClick={handlePlay}
             className="text-[#f87709] hover:bg-gray-200 p-2 rounded-full transition duration-300"
@@ -87,7 +87,7 @@ const Partners = () => {
           >
             <FaPause className="h-4 w-4" />
           </button>
-        </div>
+        </div> */}
       </div>
 
 
