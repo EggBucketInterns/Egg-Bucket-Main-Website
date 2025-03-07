@@ -118,17 +118,17 @@ function Account() {
                 className="bg-gray-200 rounded-full w-24 h-24 object-cover"
               />
               <div className="flex flex-col items-start">
-                <h2 className="text-xl mt-4 font-bold text-center">
-                  Welcome, {userData.name}
+                <h2 className="text-xl mt-4 font-bold ">
+                  Welcome, {userData.name.toUpperCase()}
                 </h2>
                 <p className="text-gray-600 text-center">+{userData.phoneNumber}</p>
               </div>
             </div>
 
             {/* Menu Options */}
-            <div className="mt-6 border-gray-300">
+            <div className="mt-6 border-gray-300 ">
               <div
-                className={`menu-item p-3 cursor-pointer flex justify-between border-2 border-gray-300 bg-gray-100 items-center ${
+                className={`menu-item p-3 cursor-pointer flex justify-between border-2 rounded-md border-gray-300 bg-gray-100 items-center ${
                   selectedMenuItem === "orders"
                     ? "bg-orange-400 text-white"
                     : ""
@@ -142,7 +142,7 @@ function Account() {
                 <MdKeyboardArrowRight />
               </div>
               <div
-                className={`menu-item p-3 cursor-pointer flex justify-between items-center border-2 border-gray-300 bg-gray-100 ${
+                className={`menu-item p-3 cursor-pointer flex justify-between items-center rounded-md border-2 border-gray-300 bg-gray-100 ${
                   selectedMenuItem === "profile"
                     ? "bg-orange-400 text-white"
                     : ""
@@ -156,7 +156,7 @@ function Account() {
                 <MdKeyboardArrowRight />
               </div>
               <div
-                className={`menu-item p-3 cursor-pointer flex justify-between items-center border-2 border-gray-300 bg-gray-100 ${
+                className={`menu-item p-3 cursor-pointer flex justify-between rounded-md items-center border-2 border-gray-300 bg-gray-100 ${
                   selectedMenuItem === "addresses"
                     ? "bg-orange-400 text-white"
                     : ""
@@ -170,7 +170,7 @@ function Account() {
                 <MdKeyboardArrowRight />
               </div>
               <div
-                className="menu-item p-3 cursor-pointer flex justify-between items-center border-2 border-gray-300 bg-gray-100"
+                className="menu-item p-3 cursor-pointer flex justify-between rounded-md items-center border-2 border-gray-300 bg-gray-100"
                 onClick={handleLogout}
               >
                 <span className="flex items-center">
