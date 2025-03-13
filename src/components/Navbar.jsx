@@ -79,7 +79,7 @@ const Navbar = () => {
                 <span className="relative z-10 transition-colors text-lg group-hover:text-gray-950">
                   Home
                 </span>
-                <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1.5 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
+                <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
               </Link>
             </li>
 
@@ -97,7 +97,7 @@ const Navbar = () => {
                     aboutOpen ? "rotate-180" : ""
                   }`}
                 />
-                <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1.5 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
+                <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
               </button>
 
               {/* Submenu */}
@@ -132,7 +132,7 @@ const Navbar = () => {
                 <span className="relative z-10 transition-colors text-lg group-hover:text-gray-950">
                   Career
                 </span>
-                <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1.5 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
+                <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
               </Link>
             </li>
 
@@ -144,7 +144,7 @@ const Navbar = () => {
                 <span className="relative z-10 transition-colors text-lg group-hover:text-gray-950">
                   FAQ's
                 </span>
-                <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1.5 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
+                <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
               </Link>
             </li>
 
@@ -156,7 +156,7 @@ const Navbar = () => {
                 <span className="relative z-10 transition-colors text-lg group-hover:text-gray-950">
                   Contact Us
                 </span>
-                <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1.5 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
+                <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
               </Link>
             </li>
           </ul>

@@ -20,6 +20,7 @@ const Cart = ({ toggleCart }) => {
   const [localQuantities, setLocalQuantities] = useState({});
   const [isLoading, setIsLoading] = useState(false); // Loading state
   const [userToken, setUserToken] = useState(null);
+  const [shipping, setShipping] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -31,7 +32,7 @@ const Cart = ({ toggleCart }) => {
     const fetchAddresses = async () => {
       try {
         const response = await fetch(
-          "https://b2c-backend-1.onrender.com/api/v1/order/order"
+          "https://b2c-backend13.onrender.com/api/v1/order/order"
         );
         const data = await response.json();
 
@@ -130,7 +131,7 @@ const Cart = ({ toggleCart }) => {
       setShowSelectAlert(false);
       
       const response = await axios.post(
-        "https://b2c-backend-1.onrender.com/api/v1/order/order",
+        "https://b2c-backend13.onrender.com/api/v1/order/order",
         orderPayload,
         { validateStatus: () => true } // Avoid throwing errors for HTTP status codes
       );
@@ -180,7 +181,21 @@ const Cart = ({ toggleCart }) => {
     cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
   );
 
-  const shipping = 50; // Flat shipping rate
+  // Flat shipping rate
+
+  const fetchShippingCharge = async () => {
+    try {
+      const response = await axios.get("https://b2c-backend13.onrender.com/api/v1/order/shipping");
+      setShipping(response.data.charge);
+    } catch (error) {
+      console.error("Error fetching shipping charge:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchShippingCharge();
+  }, []);
+
   const totalPrice = subtotal + shipping;
 
   // Loading spinner component
