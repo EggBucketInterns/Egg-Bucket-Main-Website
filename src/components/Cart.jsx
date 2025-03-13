@@ -32,7 +32,7 @@ const Cart = ({ toggleCart }) => {
     const fetchAddresses = async () => {
       try {
         const response = await fetch(
-          "https://b2c-backend13.onrender.com/api/v1/order/order"
+          "https://b2c-backend-eik4.onrender.com/api/v1/order/order"
         );
         const data = await response.json();
 
@@ -131,7 +131,7 @@ const Cart = ({ toggleCart }) => {
       setShowSelectAlert(false);
       
       const response = await axios.post(
-        "https://b2c-backend13.onrender.com/api/v1/order/order",
+        "https://b2c-backend-eik4.onrender.com/api/v1/order/order",
         orderPayload,
         { validateStatus: () => true } // Avoid throwing errors for HTTP status codes
       );
@@ -185,7 +185,7 @@ const Cart = ({ toggleCart }) => {
 
   const fetchShippingCharge = async () => {
     try {
-      const response = await axios.get("https://b2c-backend13.onrender.com/api/v1/order/shipping");
+      const response = await axios.get("https://b2c-backend-eik4.onrender.com/api/v1/order/shipping");
       setShipping(response.data.charge);
     } catch (error) {
       console.error("Error fetching shipping charge:", error);
