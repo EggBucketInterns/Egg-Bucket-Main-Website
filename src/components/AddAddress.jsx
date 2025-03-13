@@ -182,7 +182,7 @@ const AddAddress = ({ onClose }) => {
   
     try {
       const response = await fetch(
-        `https://b2c-backend13.onrender.com/api/v1/customer/user/${userData?.phoneNumber}`,
+        `https://b2c-backend-eik4.onrender.com/api/v1/customer/user/${userData?.phoneNumber}`,
         {
           method: 'PATCH',
           headers: {
