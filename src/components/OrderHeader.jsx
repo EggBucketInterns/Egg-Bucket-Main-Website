@@ -175,7 +175,7 @@ const Header = ({ addToCart, removeFromCart }) => {
               <span className="relative z-10 transition-colors group-hover:text-gray-950">
                 Home
               </span>
-              <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1.5 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
+              <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
             </Link>
             <button
               onClick={() => navigate(-1)}
@@ -184,7 +184,7 @@ const Header = ({ addToCart, removeFromCart }) => {
               <span className="relative z-10 transition-colors flex group-hover:text-gray-950">
                 <IoMdArrowBack />
               </span>
-              <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1.5 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
+              <div className="absolute inset-0 bg-[#f87709] bg-opacity-70 h-1 rounded-lg top-3/4 transform origin-left scale-x-0 transition-transform duration-500 ease-in-out group-hover:scale-x-100"></div>
             </button>
           </div>
 

@@ -60,7 +60,7 @@ const EditAddress = ({ address, onClose, onAddressUpdated }) => {
       console.log("Payload:", payload);
 
       // Sending the PATCH request to update the address
-      const response = await fetch(`https://b2c-backend-1.onrender.com/api/v1/customer/user/${phoneNumber}`, {
+      const response = await fetch(`https://b2c-backend-eik4.onrender.com/api/v1/customer/user/${phoneNumber}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
