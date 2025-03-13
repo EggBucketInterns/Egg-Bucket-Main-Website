@@ -27,7 +27,7 @@ const Profile = () => {
       setIsLoading(true); // Start loading
 
       // Make the PATCH request to update the profile
-      const response = await fetch(`https://b2c-backend-1.onrender.com/api/v1/customer/user/${phoneNumber}`, {
+      const response = await fetch(`https://b2c-backend13.onrender.com/api/v1/customer/user/${phoneNumber}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

@@ -58,7 +58,7 @@ const Orders = () => {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          `https://b2c-backend-1.onrender.com/api/v1/order/order`,
+          `https://b2c-backend13.onrender.com/api/v1/order/order`,
           {
             method: "GET",
             headers: {
@@ -127,7 +127,7 @@ const Orders = () => {
       }
 
       const response = await fetch(
-        `https://b2c-backend-1.onrender.com/api/v1/order/order/${orderId}`,
+        `https://b2c-backend13.onrender.com/api/v1/order/order/${orderId}`,
         {
           method: "POST",
           headers: {

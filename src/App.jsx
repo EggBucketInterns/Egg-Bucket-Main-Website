@@ -30,6 +30,8 @@ import MBAOpportunities from "./pages/MBAOpportunities";
 
 
 
+
+
 const App = () => {
   const location = useLocation();
   const isB2CPage = location.pathname.startsWith("/order");
@@ -54,7 +56,7 @@ const App = () => {
       <Toaster position="top-center" />
       {!isB2CPage && <Navbar />}
       <ScrollToTop />
-
+      
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/contact-us" element={<ContactUsPage />} />
