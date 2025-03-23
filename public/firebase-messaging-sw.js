@@ -40,7 +40,7 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener("notificationclick", (event) => {
     event.notification.close();
     if (event.action === "open") {
-        clients.openWindow("http://127.0.0.1:5173/");
+        clients.openWindow("https://www.eggbucket.in/");
     }
 });
 
