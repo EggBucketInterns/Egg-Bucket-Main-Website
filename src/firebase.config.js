@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from "firebase/firestore";
+import { getMessaging,onMessage } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCA3LHBnhpgI9UstaaewiqSZeVKx4AsSPI",
@@ -21,6 +22,8 @@ const firebaseConfig = {
 // VITE_measurementId=G-"SBL116DGDY"
 
 const app = initializeApp(firebaseConfig);
+const messaging = getMessaging(app);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export {messaging,onMessage};

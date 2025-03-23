@@ -5,6 +5,7 @@ import { addItem, decrementItem, removeItem } from "../redux/localStorageSlice";
 import { FiChevronDown } from "react-icons/fi";
 import axios from "axios";
 import toast from "react-hot-toast";
+import useNotification from "./useNotification";
 
 
 
@@ -14,6 +15,8 @@ const Cart = ({ toggleCart }) => {
 
   const { userData } = useSelector((state) => state.user);
   const navigate = useNavigate();
+
+  const { sendNotification } = useNotification();
 
   const [addresses, setAddresses] = useState([]); // Stores address data from API
   const [selectedAddress, setSelectedAddress] = useState(); // Initialize with null
@@ -128,51 +131,49 @@ const Cart = ({ toggleCart }) => {
     };
 
     try {
-      setIsLoading(true); // Start loading
-      
-      // Clear any previous messages
+      setIsLoading(true);
       setSuccessMessage("");
       setShowSelectAlert(false);
       
       const response = await axios.post(
         "https://b2c-backend-eik4.onrender.com/api/v1/order/order",
         orderPayload,
-        { validateStatus: () => true } // Avoid throwing errors for HTTP status codes
+        { validateStatus: () => true }
       );
-
+  
       if (response.data.status === "success") {
         const audio = new Audio("/order-placed audio.mp3");
-  audio.play();
-        setSuccessMessage("Order placed successfully!");
-
-        clearCart(); // Clear cart on success
-        setTimeout(() => {
-          setSuccessMessage(""); // Clear success message after 5 seconds
-        }, 5000);
+        audio.play();
+        const orderSummary = cartItems.map(item => 
+          `${item.name} x${item.quantity} - ₹${(item.price * item.quantity).toFixed(2)}`
+        ).join(", ");
+        
+        // Use ONLY ONE notification method - either sendNotification OR successMessage
+        sendNotification("Egg-Bucket", `Your order has been placed! Order details: ${orderSummary}`, "success");
+        // Don't set successMessage since you're using sendNotification
+        // setSuccessMessage("Order placed successfully!");
+  
+        clearCart();
+        // No need for timeout to clear success message since we're not setting it
       } else if (
         response.data.status === "fail" &&
-        response.data.message ===
-          "No nearby outlets, we will soon expand here!!"
+        response.data.message === "No nearby outlets, we will soon expand here!!"
       ) {
-        setSuccessMessage(response.data.message); // Show failure message
-        setTimeout(() => {
-          setSuccessMessage(""); // Clear message after 5 seconds
-        }, 5000);
+        // Use sendNotification instead of successMessage
+        sendNotification("Egg-Bucket", response.data.message, "error");
+        // Don't set successMessage
       } else {
-        toast.error("Please select Address");
-        setSuccessMessage("Failed to place order. Please try again.");
-        setTimeout(() => {
-          setSuccessMessage(""); // Clear error message after 5 seconds
-        }, 5000);
+        // Use either toast.error OR sendNotification, not both
+        // sendNotification("Egg-Bucket", "Please select Address", "error");
+        toast.error("Please select Address"); 
+        // Don't set successMessage
       }
     } catch (error) {
       console.error("Error placing order:", error);
-      setSuccessMessage("Failed to place order. Please try again.");
-      setTimeout(() => {
-        setSuccessMessage(""); // Clear error message after 5 seconds
-      }, 5000);
+      sendNotification("Egg-Bucket", "Failed to place order", "error");
+      // Don't set successMessage
     } finally {
-      setIsLoading(false); // End loading
+      setIsLoading(false);
     }
   };
 
