@@ -46,28 +46,43 @@ const useNotification = () => {
   const sendNotification = async (title, body, toastType = "success") => {
     setLoading(true);
     try {
+      console.log("Attempting to get FCM token...");
       const deviceToken = await getFcmToken();
-
+      console.log("FCM token obtained:", deviceToken ? "Success" : "Failed");
+  
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+      console.log("Device info:", { 
+        isMobile, 
+        userAgent: navigator.userAgent,
+        notificationPermission: Notification.permission 
+      });
+  
+      console.log("Sending notification to backend...");
       const response = await fetch("https://b2c-backend-eik4.onrender.com/api/send-notification", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, body, deviceToken }),
+        body: JSON.stringify({ 
+          title, 
+          body, 
+          deviceToken,
+          deviceType: isMobile ? "mobile" : "desktop"
+        }),
       });
-
+  
+      // Parse JSON only once
+      const responseData = await response.json();
+      console.log("Backend response:", responseData);
+  
       if (!response.ok) throw new Error("Failed to send notification");
-
-      // Show toast based on the type
+  
+      // Show toast notification
       switch(toastType) {
         case "success":
           toast.success(`${title}: ${body}`);
-          break;
-        case "error":
-          toast.error(`${title}: ${body}`);
-          break;
-        case "loading":
-          toast.loading(`${title}: ${body}`);
           break;
         case "custom":
           toast.custom(
@@ -79,9 +94,8 @@ const useNotification = () => {
         default:
           toast(`${title}: ${body}`);
       }
-
-      const result = await response.json();
-      console.log("Notification sent successfully:", result);
+  
+      console.log("Notification sent successfully:", responseData);
     } catch (error) {
       console.error("Error sending notification:", error);
       toast.error("Failed to send notification");
@@ -89,7 +103,7 @@ const useNotification = () => {
       setLoading(false);
     }
   };
-
+  
   return { notification, loading, sendNotification };
 };
 
