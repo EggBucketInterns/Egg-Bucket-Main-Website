@@ -144,17 +144,18 @@ const Cart = ({ toggleCart }) => {
       if (response.data.status === "success") {
         const audio = new Audio("/order-placed audio.mp3");
         audio.play();
-        const orderSummary = cartItems.map(item => 
+        const orderDetails = cartItems.map(item => 
           `${item.name} x${item.quantity} - ₹${(item.price * item.quantity).toFixed(2)}`
         ).join(", ");
         
-        // Use ONLY ONE notification method - either sendNotification OR successMessage
-        sendNotification("Egg-Bucket", `Your order has been placed! Order details: ${orderSummary}`, "success");
-        // Don't set successMessage since you're using sendNotification
-        // setSuccessMessage("Order placed successfully!");
+        sendNotification(
+          "Order Placed Successfully", 
+          `Your order (₹${totalPrice.toFixed(2)}) has been placed. Details: ${orderDetails}`,
+          "success"
+        );
+       
   
         clearCart();
-        // No need for timeout to clear success message since we're not setting it
       } else if (
         response.data.status === "fail" &&
         response.data.message === "No nearby outlets, we will soon expand here!!"
