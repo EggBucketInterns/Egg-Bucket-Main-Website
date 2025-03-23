@@ -8,14 +8,14 @@ import App from "./App.jsx";
 import { store, persistor } from "./redux/store.js";
 import "./index.css";
 
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker
-    .register("/firebase-messaging-sw.js")
-    .then((registration) => {
-      console.log("Service Worker registered:", registration);
+// In your main application code where you register the service worker
+if ('serviceWorker' in navigator && 'PushManager' in window) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    .then(registration => {
+      console.log('Service Worker registered with scope:', registration.scope);
     })
-    .catch((error) => {
-      console.error("Service Worker registration failed:", error);
+    .catch(error => {
+      console.error('Service Worker registration failed:', error);
     });
 }
 
