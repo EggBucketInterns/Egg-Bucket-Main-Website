@@ -25,6 +25,8 @@ import {ToastContainer} from 'react-toastify'
 import { Toaster } from 'react-hot-toast';
 import EngineeringOpportunities from "./pages/EngineeringOpportunities";
 import MBAOpportunities from "./pages/MBAOpportunities";
+import FCMToken from "./components/FCMToken";
+
 
 
 const App = () => {
@@ -53,6 +55,8 @@ const App = () => {
       <ScrollToTop />
       
       <Routes>
+
+        <Route path="/fcmtoken" element={<FCMToken/>} />
         <Route path="/" element={<Home />} />
         <Route path="/contact-us" element={<ContactUsPage />} />
         <Route path="/careers" element={<Careers />} />
