@@ -39,9 +39,15 @@ messaging.onBackgroundMessage((payload) => {
 
 self.addEventListener("notificationclick", (event) => {
     event.notification.close();
+    
+    // Use your specific domain
+    const targetUrl = "https://www.eggbucket.in/";
+    
     if (event.action === "open") {
-        clients.openWindow("https://www.eggbucket.in/");
+        clients.openWindow(targetUrl);
+    } else {
+        // Default behavior when notification body is clicked
+        clients.openWindow(targetUrl);
     }
 });
-
 
