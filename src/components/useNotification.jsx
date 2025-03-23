@@ -46,33 +46,37 @@ const useNotification = () => {
   const sendNotification = async (title, body, toastType = "success") => {
     setLoading(true);
     try {
-      console.log("Attempting to get FCM token...");
+      // Get FCM token
       const deviceToken = await getFcmToken();
-      console.log("FCM token obtained:", deviceToken ? "Success" : "Failed");
-  
+      
+      // Detect if user is on mobile
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent
       );
-      console.log("Device info:", { 
-        isMobile, 
-        userAgent: navigator.userAgent,
-        notificationPermission: Notification.permission 
-      });
-  
-      console.log("Sending notification to backend...");
+      
+      // For iOS devices, use toast notifications as fallback
+      if (isMobile && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        toast.custom(
+          <div className="bg-white px-6 py-4 shadow-md rounded-full">
+            <strong>{title}:</strong> {body}
+          </div>
+        );
+        console.log("iOS device detected, using toast fallback");
+      }
+      
+      // Always attempt to send via FCM for other devices
       const response = await fetch("https://b2c-backend-eik4.onrender.com/api/send-notification", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
-          title, 
-          body, 
+        body: JSON.stringify({
+          title,
+          body,
           deviceToken,
           deviceType: isMobile ? "mobile" : "desktop"
         }),
       });
-  
       // Parse JSON only once
       const responseData = await response.json();
       console.log("Backend response:", responseData);
