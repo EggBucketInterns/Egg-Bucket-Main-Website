@@ -135,6 +135,8 @@ function Login() {
     }
   };
 
+
+ 
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row mt-12">
       <div className="hidden lg:flex lg:w-[700px] bg-[#F0A817] items-center justify-center rounded-r-3xl">

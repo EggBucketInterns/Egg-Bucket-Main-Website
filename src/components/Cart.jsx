@@ -5,6 +5,8 @@ import { addItem, decrementItem, removeItem } from "../redux/localStorageSlice";
 import { FiChevronDown } from "react-icons/fi";
 import axios from "axios";
 
+
+
 const Cart = ({ toggleCart }) => {
   const cartItems = useSelector((state) => state.localStorage.items);
   const dispatch = useDispatch();
@@ -27,6 +29,7 @@ const Cart = ({ toggleCart }) => {
     setUserToken(token);
   }, []);
 
+  
   useEffect(() => {
     // Fetch address data from API
     const fetchAddresses = async () => {
@@ -137,7 +140,10 @@ const Cart = ({ toggleCart }) => {
       );
 
       if (response.data.status === "success") {
+        const audio = new Audio("/order-placed audio.mp3");
+  audio.play();
         setSuccessMessage("Order placed successfully!");
+
         clearCart(); // Clear cart on success
         setTimeout(() => {
           setSuccessMessage(""); // Clear success message after 5 seconds

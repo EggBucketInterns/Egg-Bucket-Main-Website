@@ -23,6 +23,23 @@ const LandingPage = () => {
   const { products: reduxProducts, loading, error } = useSelector((state) => state.products);
   const [popupVisible, setPopupVisible] = useState(false);
   const [products, setProducts] = useState([]); // Start with empty array for better initial render
+  const [isMobileView, setIsMobileView] = useState(false);
+
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth <= 768); // 768px is typical mobile breakpoint
+    };
+    
+    // Initial check
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     // Check localStorage for cached products to display immediately
@@ -70,15 +87,21 @@ const LandingPage = () => {
       alert("This item is currently out of stock.");
       return;
     }
-
+  
     const existingProduct = cartItems.find((item) => item.id === product.id);
     if (existingProduct) {
       dispatch(addItem({ ...existingProduct, quantity: existingProduct.quantity + 1 }));
     } else {
       dispatch(addItem({ ...product, quantity: 1 }));
     }
+    
     setPopupVisible(true);
-    toast.success('Product added to cart!');
+    
+    // Only show toast on non-mobile devices
+    if (!isMobileView) {
+      toast.success('Product added to cart!');
+    }
+    
     setTimeout(() => setPopupVisible(false), 1000);
   };
 
