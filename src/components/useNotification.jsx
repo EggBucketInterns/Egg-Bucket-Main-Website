@@ -46,28 +46,35 @@ const useNotification = () => {
   const sendNotification = async (title, body, toastType = "success") => {
     setLoading(true);
     try {
+      // Check if running on mobile
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+      
+      // Get device token 
       const deviceToken = await getFcmToken();
 
+      // Always send to backend (for both mobile and desktop)
       const response = await fetch("https://b2c-backend-eik4.onrender.com/api/send-notification", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, body, deviceToken }),
+        body: JSON.stringify({ 
+          title, 
+          body, 
+          deviceToken,
+          isMobile // Let backend know if it's a mobile device
+        }),
       });
 
       if (!response.ok) throw new Error("Failed to send notification");
 
-      // Show toast based on the type
+      // Always show toast notification regardless of device type
+      // This ensures user sees notification in the app even if system notification fails
       switch(toastType) {
         case "success":
           toast.success(`${title}: ${body}`);
-          break;
-        case "error":
-          toast.error(`${title}: ${body}`);
-          break;
-        case "loading":
-          toast.loading(`${title}: ${body}`);
           break;
         case "custom":
           toast.custom(
