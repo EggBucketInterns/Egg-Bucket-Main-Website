@@ -3,14 +3,15 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCA3LHBnhpgI9UstaaewiqSZeVKx4AsSPI",
-  authDomain: "b2c-main.firebaseapp.com",
-  projectId: "b2c-main",
-  storageBucket: "b2c-main.appspot.com",
-  messagingSenderId: "644465249792",
-  appId: "1:644465249792:web:4d64b23d65d401fbd292e5",
-  measurementId: "G-SBL116DGDY"
+  apiKey: import.meta.env.VITE_API_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_APP_ID,
+  measurementId: import.meta.env.VITE_MEASUREMENT_ID
 };
+
 // import.meta.env.VITE_projectId,
 // VITE_apiKey="AIzaSyCA3LHBnhpgI9UstaaewiqSZeVKx4AsSPI"
 // VITE_authDomain="b2c-main.firebaseapp.com"
@@ -21,6 +22,7 @@ const firebaseConfig = {
 // VITE_measurementId=G-"SBL116DGDY"
 
 const app = initializeApp(firebaseConfig);
+
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);

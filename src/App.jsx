@@ -27,11 +27,6 @@ import EngineeringOpportunities from "./pages/EngineeringOpportunities";
 import MBAOpportunities from "./pages/MBAOpportunities";
 
 
-
-
-
-
-
 const App = () => {
   const location = useLocation();
   const isB2CPage = location.pathname.startsWith("/order");
@@ -71,7 +66,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
       </Routes>
 
-      {!isB2CPage && <Footer />}
+      {/* {!isB2CPage && <Footer />} */}
     </div>
   );
 };
