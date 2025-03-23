@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { addItem, decrementItem, removeItem } from "../redux/localStorageSlice";
 import { FiChevronDown } from "react-icons/fi";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 
 
@@ -86,7 +87,7 @@ const Cart = ({ toggleCart }) => {
   };
 
   const handlePlaceOrder = async () => {
-    if (!selectedAddress) {
+    if (!selectedAddress || typeof selectedAddress !== 'object') {
       setShowSelectAlert(true);
       setTimeout(() => {
         setShowSelectAlert(false);
@@ -158,6 +159,7 @@ const Cart = ({ toggleCart }) => {
           setSuccessMessage(""); // Clear message after 5 seconds
         }, 5000);
       } else {
+        toast.error("Please select Address");
         setSuccessMessage("Failed to place order. Please try again.");
         setTimeout(() => {
           setSuccessMessage(""); // Clear error message after 5 seconds
