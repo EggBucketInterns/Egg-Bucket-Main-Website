@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { ShoppingCart, Minus, Plus } from "lucide-react";
-import pc30 from "../assets/Images/30pc.svg";
+import { Minus, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 import pc12 from "../assets/Images/12pc.svg";
+import pc30 from "../assets/Images/30pc.svg";
 import pc6 from "../assets/Images/6pc.svg";
 import ellipse7 from "../assets/Images/Ellipse 7 carousel_bg.svg";
 import ellipse8 from "../assets/Images/Ellipse 8 carousel_bg.svg";
 import bg from "../assets/Images/hero-section-carousel-bg.svg";
-import { useSelector, useDispatch } from "react-redux";
-import { addItem, removeItem, decrementItem } from "../redux/localStorageSlice";
+import { addItem, decrementItem, removeItem } from "../redux/localStorageSlice";
 import { fetchProducts } from "../redux/productsSlice";
-import toast from "react-hot-toast";
 
 const imageMapping = {
   "6pc_tray": pc6,
@@ -22,35 +22,30 @@ const LandingPage = () => {
   const cartItems = useSelector((state) => state.localStorage.items);
   const { products: reduxProducts, loading, error } = useSelector((state) => state.products);
   const [popupVisible, setPopupVisible] = useState(false);
-  const [products, setProducts] = useState([]); // Start with empty array for better initial render
+  const [products, setProducts] = useState([]);
   const [isMobileView, setIsMobileView] = useState(false);
-
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobileView(window.innerWidth <= 768); // 768px is typical mobile breakpoint
+      setIsMobileView(window.innerWidth <= 768);
     };
-    
-    // Initial check
     handleResize();
-    
-    // Add event listener
-    window.addEventListener('resize', handleResize);
-    
-    // Clean up
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
-    // Check localStorage for cached products to display immediately
-    const cachedProducts = localStorage.getItem('cachedProducts');
+    const cachedProducts = localStorage.getItem("cachedProducts");
+    const lastFetched = localStorage.getItem("productsFetchedAt");
+    const SIX_HOURS = 6 * 60 * 60 * 1000;
+
     if (cachedProducts) {
       setProducts(JSON.parse(cachedProducts));
-      console.log('Loaded cached products');
     }
 
-    // Fetch fresh products
-    dispatch(fetchProducts());
+    if (!cachedProducts || !lastFetched || (Date.now() - lastFetched > SIX_HOURS)) {
+      dispatch(fetchProducts());
+    }
   }, [dispatch]);
 
   useEffect(() => {
@@ -63,9 +58,8 @@ const LandingPage = () => {
         countInStock: product.countInStock || 0,
       }));
       setProducts(mappedProducts);
-      // Cache the products in localStorage
-      localStorage.setItem('cachedProducts', JSON.stringify(mappedProducts));
-      console.log('Products updated and cached:', mappedProducts.length);
+      localStorage.setItem("cachedProducts", JSON.stringify(mappedProducts));
+      localStorage.setItem("productsFetchedAt", Date.now());
     }
   }, [reduxProducts]);
 
@@ -87,21 +81,16 @@ const LandingPage = () => {
       alert("This item is currently out of stock.");
       return;
     }
-  
+
     const existingProduct = cartItems.find((item) => item.id === product.id);
     if (existingProduct) {
       dispatch(addItem({ ...existingProduct, quantity: existingProduct.quantity + 1 }));
     } else {
       dispatch(addItem({ ...product, quantity: 1 }));
     }
-    
+
     setPopupVisible(true);
-    
-    // Only show toast on non-mobile devices
-    if (!isMobileView) {
-      toast.success('Product added to cart!');
-    }
-    
+    if (!isMobileView) toast.success("Product added to cart!");
     setTimeout(() => setPopupVisible(false), 1000);
   };
 
@@ -111,13 +100,9 @@ const LandingPage = () => {
   };
 
   return (
-    
-    <div className="bg-white min-h-screen font-poppins relative ">
-      {popupVisible}
-    
+    <div className="bg-white min-h-screen font-poppins relative">
       <main className="container mx-auto px-4 py-4 sm:py-8">
         {/* Hero Section */}
-        
         <div
           className="mb-8 sm:mb-12 relative bg-cover bg-no-repeat bg-center rounded-lg overflow-hidden"
           style={{ backgroundImage: `url(${bg})` }}
@@ -136,35 +121,37 @@ const LandingPage = () => {
                 Subscribe Now For Daily And Weekly Delivery
               </p>
             </div>
-            
-            {/* Fixed image container */}
+
             <div className="w-full md:w-1/2 flex justify-center items-center h-64 sm:h-72 md:h-80 relative">
               <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80">
                 <img
                   src={ellipse7}
                   alt="Ellipse 7"
+                  loading="lazy"
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-56 sm:w-64 md:w-72 animate-spin-slow"
                 />
                 <img
                   src={ellipse8}
                   alt="Ellipse 8"
+                  loading="lazy"
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-44 sm:w-52 md:w-60 animate-spin-slow"
                 />
                 <img
                   src={pc30}
                   alt="30 pc tray"
+                  loading="lazy"
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 sm:w-48 md:w-56"
                 />
               </div>
             </div>
           </div>
         </div>
-    
+
         {/* Products Section */}
         <h3 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center md:text-left">
           Our Products
         </h3>
-    
+
         {loading && products.length === 0 ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-orange-500"></div>
@@ -186,6 +173,7 @@ const LandingPage = () => {
                 <div className="flex-grow p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row items-center">
                     <img
+                      loading="lazy"
                       src={product.image}
                       alt={product.name}
                       className="w-full sm:w-1/2 h-28 sm:h-36 object-contain mb-4 sm:mb-0"
