@@ -1,39 +1,34 @@
-import React from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
-import Navbar from "./components/Navbar";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Footer from "./components/Footer";
+import Navbar from "./components/Navbar";
 import ScrollToTop from "./components/ScrollToTop";
 
 // Importing Pages
-import Home from "./pages/Home";
-import ContactUsPage from "./pages/ContactUs";
 import Careers from "./pages/Careers";
-import Time from "./pages/Time";
-import Ourfounders from "./pages/OurFounders";
+import ContactUsPage from "./pages/ContactUs";
 import FAQ from "./pages/FAQ";
+import Home from "./pages/Home";
 import Order from "./pages/Order";
+import Ourfounders from "./pages/OurFounders";
+import Privacy from "./pages/Policies/Privacy.jsx";
 import Refund from "./pages/Policies/Refund.jsx";
 import Return from "./pages/Policies/Return.jsx";
 import Shipping from "./pages/Policies/Shipping.jsx";
-import Privacy from "./pages/Policies/Privacy.jsx";
+import Time from "./pages/Time";
 
 // import { SiDotenv } from "react-icons/si";
 // import { GrConfigure } from "react-icons/gr";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { fetchUserData } from "./redux/userSlice";
-import { auth } from "./firebase.config";
 import { onAuthStateChanged } from "firebase/auth";
-import Login from "./components/Login";
-import CareerDreamJob from "./pages/CareerDreamJob";
-import {ToastContainer} from 'react-toastify'
+import { useEffect } from "react";
 import { Toaster } from 'react-hot-toast';
+import { useDispatch } from "react-redux";
+import FCMToken from "./components/FCMToken";
+import Login from "./components/Login";
+import { auth } from "./firebase.config";
+import CareerDreamJob from "./pages/CareerDreamJob";
 import EngineeringOpportunities from "./pages/EngineeringOpportunities";
 import MBAOpportunities from "./pages/MBAOpportunities";
-import FCMToken from "./components/FCMToken";
-
-
-
+import { fetchUserData } from "./redux/userSlice";
 
 
 const App = () => {
