@@ -12,6 +12,11 @@ import Time from "./pages/Time";
 import Ourfounders from "./pages/OurFounders";
 import FAQ from "./pages/FAQ";
 import Order from "./pages/Order";
+import Refund from "./pages/Policies/Refund.jsx";
+import Return from "./pages/Policies/Return.jsx";
+import Shipping from "./pages/Policies/Shipping.jsx";
+import Privacy from "./pages/Policies/Privacy.jsx";
+
 // import { SiDotenv } from "react-icons/si";
 // import { GrConfigure } from "react-icons/gr";
 import { useEffect } from "react";
@@ -26,6 +31,8 @@ import { Toaster } from 'react-hot-toast';
 import EngineeringOpportunities from "./pages/EngineeringOpportunities";
 import MBAOpportunities from "./pages/MBAOpportunities";
 import FCMToken from "./components/FCMToken";
+
+
 
 
 
@@ -58,6 +65,11 @@ const App = () => {
 
         <Route path="/fcmtoken" element={<FCMToken/>} />
         <Route path="/" element={<Home />} />
+        <Route path="/refund" element={<Refund />} />
+        <Route path="/return" element={<Return />} />
+        <Route path="/shipping" element={<Shipping />} />
+        <Route path="/privacy" element={<Privacy />} />
+
         <Route path="/contact-us" element={<ContactUsPage />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/careers/dreamjob" element={<CareerDreamJob />} />
@@ -68,9 +80,11 @@ const App = () => {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/order/*" element={<Order />} />
         <Route path="/login" element={<Login />} />
+
+        
       </Routes>
 
-      {/* {!isB2CPage && <Footer />} */}
+       {!isB2CPage && <Footer />} 
     </div>
   );
 };
